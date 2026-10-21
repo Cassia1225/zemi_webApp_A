@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>学生サポートアプリ</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;height:100vh;display:flex;flex-direction:column;font-family:sans-serif;background:#333;color:#fff}
+header{padding:20px;font-size:24px}
+main{flex:1;display:flex;min-height:0;margin:0 20px 20px;border:2px solid #fff}
+nav{width:180px;padding:10px;border-right:2px solid #fff;overflow-y:auto}
+nav button{display:block;width:100%;padding:10px;border:0;background:none;color:#fff;font-size:20px;text-align:left;cursor:pointer}
+nav button:hover{background:#555}
+nav button.active{background:#24344D}
+#content{flex:1;min-width:0;display:flex}
+#home{padding:20px}
+iframe{flex:1;border:0;background:#fff}
+[hidden]{display:none!important}
+
+@media(max-width:600px){
+  header{padding:12px;font-size:20px;text-align:center}
+  main{flex-direction:column;margin:0 10px 10px}
+  nav{order:1;display:flex;width:auto;padding:0;border:0;border-top:2px solid #fff}
+  nav button{flex:1;padding:14px 4px;font-size:14px;text-align:center}
+}
+</style>
+</head>
+<body>
+
+<header>学生サポートアプリ</header>
+
+<main>
+  <nav>
+    <button>Home</button>
+    <button data-src="timetable.html">時間割</button>
+    <button data-src="relax.html">休憩</button>
+    <button data-src="transfer.html">転送</button>
+    <button data-src="settings.html">設定</button>
+  </nav>
+
+  <div id="content">
+    <div id="home">
+      <h2>Home</h2>
+      <p>利用する機能を選択してください。</p>
+    </div>
+  </div>
+</main>
+
+<script>
+const frames = {};
+
+document.querySelector("nav").onclick = e => {
+  const b = e.target.closest("button");
+  if (!b) return;
+
+  document.querySelectorAll("nav button").forEach(x => x.classList.toggle("active", x === b));
+
+  const src = b.dataset.src;
+  if (src && !frames[src]) {   // 初めて開くときだけ読み込む
+    content.append(frames[src] = Object.assign(document.createElement("iframe"), { src }));
+  }
+
+  home.hidden = !!src;
+  for (const s in frames) frames[s].hidden = s !== src;
+};
+
+document.querySelector("nav button").click();   // 最初はHome
+</script>
+
+</body>
+</html>
