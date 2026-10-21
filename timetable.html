@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>時間割</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Shippori+Mincho:wght@500;700&display=swap" />
+<link rel="stylesheet" href="css/timetable.css" />
+</head>
+<body class="timetable">
+<div class="wrap">
+  <header>
+    <h1 id="appTitle">時間割</h1>
+    <button class="btn btn-danger delete-btn" id="deleteConfirmBtn" onclick="deleteSelected()" disabled>講義をタップして<wbr>削除する</button>
+    <div class="header-actions">
+      <div class="menu-wrap">
+        <button class="btn-menu" aria-label="メニューを開く" onclick="setMenu(!menuOpen)">☰</button>
+        <div id="patternMenu" class="pattern-menu"></div>
+      </div>
+      <select class="btn-mode-select" aria-label="モード選択" onchange="setMode(this.value)">
+        <option value="view">講義確認・登録</option>
+        <option value="delete">講義削除</option>
+      </select>
+    </div>
+  </header>
+  <div id="saveError">保存に失敗しました。もう一度お試しください。</div>
+  <div id="loading" class="loading">読み込み中…</div>
+  <div class="grid-stage">
+    <button class="nav-arrow" id="prevBtn" aria-label="前の時間割" onclick="step(-1)">&lt;</button>
+    <div class="grid-scroll" id="gridScroll"><div id="grid" class="grid" style="display:none"></div></div>
+    <button class="nav-arrow" id="nextBtn" aria-label="次の時間割" onclick="step(1)">&gt;</button>
+  </div>
+</div>
+
+<!-- 講義の登録・編集 -->
+<div class="modal-overlay" id="overlay" onclick="if (event.target === this) show(this.id, 0)"><div class="modal">
+  <h2 id="modalTitle">講義を登録</h2>
+  <div class="field">
+    <div class="slots-head"><span>曜日・時限</span><button class="btn-link" onclick="addSlot()">＋ コマを追加</button></div>
+    <div class="slots-list" id="slotsList"></div>
+  </div>
+  <label class="field">講義名<input id="fName" placeholder="線形空間論" /><div class="form-error" id="fNameError" style="display:none">講義名を入力してください</div></label>
+  <label class="field">講師名<input id="fTeacher" placeholder="山田 太郎" /></label>
+  <label class="field">教室 / 場所<input id="fRoom" placeholder="37-705 / オンデマンド" /></label>
+  <div class="field">色<div class="color-row" id="colorRow"></div></div>
+  <div class="modal-actions">
+    <div><button class="btn btn-danger" id="deleteBtn" onclick="deleteCourses([draft.id]); show('overlay', 0)">削除</button></div>
+    <div style="display:flex;gap:8px"><button class="btn btn-ghost" onclick="show('overlay', 0)">キャンセル</button><button class="btn btn-primary" onclick="saveForm()">保存</button></div>
+  </div>
+</div></div>
+
+<!-- 講義の詳細 -->
+<div class="modal-overlay" id="viewOverlay" onclick="if (event.target === this) show(this.id, 0)"><div class="modal lg">
+  <div class="view-course-name" id="viewName"></div>
+  <div class="view-course-meta">
+    <div class="view-meta-row"><span class="view-meta-label">講師</span><span id="viewTeacher"></span></div>
+    <div class="view-meta-row"><span class="view-meta-label">場所</span><span id="viewRoom"></span></div>
+    <div class="view-meta-row"><span class="view-meta-label">時間</span><span id="viewTime"></span></div>
+  </div>
+  <div class="modal-actions" style="margin-top:18px">
+    <div><button class="btn btn-danger" onclick="deleteViewing()">講義削除</button></div>
+    <div style="display:flex;gap:8px"><button class="btn btn-ghost" onclick="show('viewOverlay', 0)">閉じる</button><button class="btn btn-primary" onclick="show('viewOverlay', 0); openForm(viewing)">講義編集</button></div>
+  </div>
+</div></div>
+
+<!-- 設定(時限の時間) -->
+<div class="modal-overlay" id="settingsOverlay" onclick="if (event.target === this) show(this.id, 0)"><div class="modal">
+  <h2>設定</h2>
+  <div class="field" style="margin-bottom:6px"><span>時限の時間</span></div>
+  <div class="settings-periods-list" id="periodsList"></div>
+  <div class="modal-actions" style="justify-content:flex-end;margin-top:16px"><button class="btn btn-ghost" onclick="show('settingsOverlay', 0)">閉じる</button></div>
+</div></div>
+
+<script>
+// ===== 共通 =====
+const $ = id => document.getElementById(id);
+const show = (id, v = 1) => $(id).classList.toggle('open', !!v);                  // モーダルの表示・非表示
+const esc = s => String(s).replace(/[&<>"']/g, c => '&#' + c.charCodeAt(0) + ';'); // HTMLに埋め込む前の無害化
+const uid = () => Math.random().toString(36).slice(2, 10);
+const DAYS = [...'月火水木金土'];
+const defPeriods = () => ['9:00〜10:40', '10:55〜12:35', '13:25〜15:05', '15:20〜17:00', '17:15〜18:55', '19:05〜20:45'].map((time, i) => ({ id: i + 1, label: `${i + 1}限`, time }));
+const PALETTE = [ // 講義の色(名前, 背景, 文字)。講義には番号 colorIdx で保存する
+  ['そら', '#AFD9F5', '#0D3A5C'], ['瑠璃', '#A9BEF2', '#1E2F73'], ['若葉', '#BEE3A8', '#28480F'], ['抹茶', '#D6DE9C', '#4A5219'],
+  ['菜の花', '#F3E48F', '#5C4A05'], ['杏', '#F6C99A', '#6B3510'], ['朱', '#F3B49C', '#7A2E10'], ['桜', '#F3C6E2', '#6B2148'],
+  ['撫子', '#EFB6B8', '#7A2020'], ['藤', '#D6C6F0', '#3E2967'], ['檜皮', '#DCC0A0', '#5A3B1D'], ['鼠', '#D9D6CC', '#3A3934'],
+].map(([name, bg, text]) => ({ name, bg, text }));
+// ===== 状態 =====
+let patterns = [], activeId, PERIODS = [];             // 時間割(1Q〜4Q)・表示中の時間割ID・時限
+let draft, viewing, mode = 'view', sliding = false, menuOpen = false; // 編集中の内容・詳細表示中の講義・モード・アニメ中・メニュー開閉
+const sel = new Set();                                 // 削除モードで選択中の講義ID
+const act = () => patterns.find(p => p.id === activeId);
+const courses = () => act().courses;
+const find = (d, p) => courses().find(c => c.day === d && c.period === p);
+const idx = () => patterns.findIndex(p => p.id === activeId);
+// ===== 保存・読み込み(localStorage。Firebase等にするときは store だけ差し替える) =====
+const store = { get: k => localStorage.getItem(k), set: (k, v) => localStorage.setItem(k, v) };
+async function save() {
+  try { await store.set('timetable:data', JSON.stringify({ patterns, activeId, periods: PERIODS })); $('saveError').style.display = 'none'; }
+  catch (e) { $('saveError').style.display = 'block'; }
+}
+async function load() {
+  let d = {}; try { d = JSON.parse(await store.get('timetable:data')) || {}; } catch (e) {}
+  const saved = d.periods || [];
+  PERIODS = defPeriods().map(p => ({ ...p, time: saved.find(s => s.id === p.id)?.time ?? p.time })); // 6時限固定(時間だけ引き継ぐ)
+  patterns = Array.isArray(d.patterns) ? d.patterns : [];
+  [1, 2, 3, 4].forEach(n => patterns.some(p => p.name === `${n}Q`) || patterns.push({ id: uid(), name: `${n}Q`, courses: [] })); // 1Q〜4Qを必ず用意
+  activeId = patterns.some(p => p.id === d.activeId) ? d.activeId : patterns[0].id;
+}
+async function deleteCourses(ids) { act().courses = courses().filter(c => !ids.includes(c.id)); await save(); render(); } // 講義を削除
+// ===== 表の描画 =====
+function render() {
+  const today = new Date().getDay() - 1; // 月=0〜土=5(日曜は強調なし)
+  $('appTitle').textContent = act().name;
+  $('prevBtn').disabled = idx() <= 0; $('nextBtn').disabled = idx() >= patterns.length - 1;
+  $('deleteConfirmBtn').disabled = !sel.size; // 削除ボタン:未選択なら説明文、選択中なら件数つきの削除ボタン
+  $('deleteConfirmBtn').innerHTML = sel.size ? `選択した講義を<wbr>削除(${sel.size}件)` : '講義をタップして<wbr>削除する';
+  $('grid').innerHTML = '<div class="corner"></div>' + DAYS.map((d, k) => `<div class="day-head${k === today ? ' today' : ''}">${d}</div>`).join('') +
+    PERIODS.map((p, r) => { // 1行 = 時限セル + 曜日ごとのコマ
+      const z = r % 2 ? 'row-odd' : 'row-even';
+      return `<div class="period-cell ${z}"><div class="p-label">${esc(p.label)}</div><div class="p-time">${esc(p.time)}</div></div>` + DAYS.map(d => {
+        const c = find(d, p.id), pl = c && PALETTE[c.colorIdx];
+        return `<div class="cell ${z}${sel.has(c?.id) ? ' selected-for-delete' : ''}" onclick="tapCell('${d}', ${p.id})"${c ? ` style="background:${pl.bg}"` : ''}>` +
+          (c ? `<div class="c-name" style="color:${pl.text}">${esc(c.name)}</div>${c.room ? `<div class="c-room" style="color:${pl.text}">${esc(c.room)}</div>` : ''}` : '') + '</div>';
+      }).join('');
+    }).join('');
+  $('grid').style.display = 'grid'; $('loading').style.display = 'none';
+}
+function tapCell(d, p) { // 削除モードは選択切替、通常は講義があれば詳細・空きなら登録
+  const c = find(d, p);
+  if (mode === 'delete') { if (c) { sel.has(c.id) ? sel.delete(c.id) : sel.add(c.id); render(); } }
+  else if (c) openView(c); else openForm(null, d, p);
+}
+function setMode(v) { mode = v; sel.clear(); document.body.classList.toggle('delete-mode', v === 'delete'); render(); }
+function deleteSelected() { if (confirm(`選択した${sel.size}件の講義を削除しますか?`)) { const ids = [...sel]; sel.clear(); deleteCourses(ids); } }
+// ===== 時間割の切り替え(矢印・スワイプ・メニュー) =====
+async function slide(dir, apply) { // 表を横へ流して消す → 中身を入れ替える → 反対側から戻す
+  const g = $('grid'), go = (x0, x1, o0, o1) => g.animate([{ transform: `translateX(${x0}%)`, opacity: o0 }, { transform: `translateX(${x1}%)`, opacity: o1 }], { duration: 160, fill: 'forwards' }).finished;
+  await go(0, -dir * 12, 1, 0); apply(); await go(dir * 12, 0, 0, 1);
+  g.getAnimations().forEach(a => a.cancel());
+}
+async function activate(id) {
+  setMenu(false);
+  if (id === activeId || sliding) return;
+  const dir = patterns.findIndex(p => p.id === id) > idx() ? 1 : -1, apply = () => { activeId = id; sel.clear(); render(); };
+  sliding = true;
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) apply(); else await slide(dir, apply); // 「動きを減らす」設定ならアニメなし
+  sliding = false; save();
+}
+const step = d => patterns[idx() + d] && activate(patterns[idx() + d].id); // 前(-1)・次(1)の時間割へ
+let sx, sy; // スワイプ:指を置いた位置と離した位置の差で判定
+$('gridScroll').addEventListener('touchstart', e => { sx = e.touches.length === 1 ? e.touches[0].clientX : null; sy = e.touches[0].clientY; }, { passive: true });
+$('gridScroll').addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+  if (sx != null && Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) step(dx < 0 ? 1 : -1);
+}, { passive: true });
+// ===== メニュー(設定・時間割の一覧) =====
+function setMenu(v) {
+  menuOpen = v; $('patternMenu').classList.toggle('open', v);
+  if (v) $('patternMenu').innerHTML = `<button class="pattern-menu-item" onclick="setMenu(false); openSettings()">設定</button><div class="pattern-menu-sep"></div><div class="pattern-menu-label">時間割</div>` +
+    patterns.map(p => `<div class="pattern-row${p.id === activeId ? ' active' : ''}"><button class="pattern-name-btn" onclick="activate('${p.id}')">${esc(p.name)}</button></div>`).join('');
+}
+document.addEventListener('click', e => { if (menuOpen && !e.target.closest('.menu-wrap')) setMenu(false); }); // メニューの外をクリックで閉じる
+// ===== 講義の登録・編集フォーム =====
+function slotsUI() { // 曜日・時限のプルダウン(2行以上あるときは「×」で行を消せる)
+  $('slotsList').innerHTML = draft.slots.map((s, i) => `<div class="slot-row">
+    <select onchange="draft.slots[${i}].day = this.value">${DAYS.map(d => `<option${d === s.day ? ' selected' : ''}>${d}</option>`).join('')}</select>
+    <select onchange="draft.slots[${i}].period = +this.value">${PERIODS.map(p => `<option value="${p.id}"${p.id === s.period ? ' selected' : ''}>${esc(p.label)}</option>`).join('')}</select>` +
+    (draft.slots.length > 1 ? `<button class="removeSlotBtn" aria-label="このコマを削除" onclick="draft.slots.splice(${i}, 1); slotsUI()">×</button>` : '') + '</div>').join('');
+}
+const colorUI = () => $('colorRow').innerHTML = PALETTE.map((c, i) => `<div class="swatch${i === draft.colorIdx ? ' selected' : ''}" style="background:${c.bg}" title="${c.name}" onclick="draft.colorIdx = ${i}; colorUI()"></div>`).join('');
+function addSlot() { // 直前のコマの次の時限を追加(最後の時限なら月曜1限)。重複は保存時にまとめられる
+  const last = draft.slots.at(-1), next = PERIODS[PERIODS.findIndex(p => p.id === last.period) + 1];
+  draft.slots.push(next ? { day: last.day, period: next.id } : { day: DAYS[0], period: PERIODS[0].id });
+  slotsUI();
+}
+function openForm(c, day = DAYS[0], period = PERIODS[0].id) { // c があれば編集、なければ新規
+  draft = c ? { ...c, slots: [{ day: c.day, period: c.period }] } : { id: null, name: '', teacher: '', room: '', colorIdx: 0, slots: [{ day, period }] };
+  $('fName').value = draft.name; $('fTeacher').value = draft.teacher || ''; $('fRoom').value = draft.room || '';
+  $('fNameError').style.display = 'none'; $('deleteBtn').style.display = c ? 'inline-block' : 'none';
+  $('modalTitle').textContent = c ? '講義を編集' : '講義を登録';
+  slotsUI(); colorUI(); show('overlay');
+}
+async function saveForm() { // 講義名は必須。同じコマの既存講義は上書き。複数コマは1コマずつ別の講義(編集時は先頭のコマが元の講義)
+  const f = { name: $('fName').value.trim(), teacher: $('fTeacher').value.trim(), room: $('fRoom').value.trim(), colorIdx: draft.colorIdx };
+  if (!f.name) { $('fNameError').style.display = 'block'; return; }
+  const slots = [...new Map(draft.slots.map(s => [s.day + s.period, s])).values()]; // 同じコマの重複は後勝ち
+  const rest = courses().filter(c => c.id !== draft.id && !slots.some(s => s.day === c.day && s.period === c.period));
+  act().courses = [...rest, ...slots.map((s, i) => ({ id: draft.id && !i ? draft.id : uid(), ...s, ...f }))];
+  await save(); render(); show('overlay', 0);
+}
+// ===== 講義の詳細 =====
+function openView(c) {
+  viewing = c; const p = PERIODS.find(x => x.id === c.period);
+  $('viewName').textContent = c.name; $('viewTeacher').textContent = c.teacher || '(未設定)'; $('viewRoom').textContent = c.room || '(未設定)';
+  $('viewTime').textContent = `${c.day}曜日 ${p.label}${p.time ? `(${p.time})` : ''}`;
+  show('viewOverlay');
+}
+function deleteViewing() { if (confirm(`「${viewing.name}」を削除しますか?`)) { deleteCourses([viewing.id]); show('viewOverlay', 0); } }
+// ===== 設定(時限の時間) =====
+function openSettings() {
+  $('periodsList').innerHTML = PERIODS.map(p => `<div class="settings-period-row"><span class="period-label">${esc(p.label)}</span><input value="${esc(p.time)}" placeholder="9:00〜10:40" onchange="setTime(${p.id}, this.value)"></div>`).join('');
+  show('settingsOverlay');
+}
+function setTime(id, v) { PERIODS.find(p => p.id === id).time = v.trim(); render(); save(); }
+// ===== 起動 =====
+load().then(() => { render(); save(); });
+</script>
+</body>
+</html>
