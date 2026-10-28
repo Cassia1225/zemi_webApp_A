@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>休憩（リラックス）</title>
+</head>
+<body>
+
+    <header>
+        <h1>休憩-relax-</h1>
+    </header>
+
+    <main>
+        
+        <section>
+            <label for="music-select">リラックスミュージック：</label>
+            <select id="music-select">
+                <option value="none">癒されミュージック</option>
+                <option value="rain">🌧️ 1. しとしと降る雨の音</option>
+                <option value="waves">🌊 2. 穏やかな寄せる波の音</option>
+                <option value="fire">🔥 3. パチパチ揺れる焚き火の音</option>
+                <option value="birds">🐦 4. 鳥のさえずり・森の音</option>
+                <option value="bowl">🧘 5. 瞑想用シンギングボウル</option>
+            </select>
+            <button id="play-btn" type="button">再生</button>
+
+            <!-- 音量バー（初期状態は非表示） -->
+            <div id="volume-container" style="display: none;">
+                <label for="volume-slider">音量：</label>
+                <input type="range" id="volume-slider" min="0" max="1" step="0.05" value="0.5">
+            </div>
+        </section>
+
+        <hr>
+
+        <section>
+            <div>
+                <span>休憩時間を決める：</span>
+                <button type="button" onclick="setTimer(3)">3分</button>
+                <button type="button" onclick="setTimer(5)">5分</button>
+                <button type="button" onclick="setTimer(10)">10分</button>
+                
+                <select id="custom-time" onchange="setCustomTimer(this.value)">
+                    <option value="" disabled selected>選択▽</option>
+                    <option value="1">1分</option>
+                    <option value="15">15分</option>
+                    <option value="20">20分</option>
+                    <option value="30">30分</option>
+                </select>
+            </div>
+
+            <!-- カウントダウンタイマー表示 -->
+            <div id="timer-box">
+                <h2 id="timer-display">00:00</h2>
+                <div>
+                    <button id="timer-start-btn" type="button" onclick="toggleTimer()">スタート</button>
+                    <button type="button" onclick="resetTimer()">リセット</button>
+                </div>
+            </div>
+        </section>
+
+        <hr>
+
+        <!-- 3. イライラを書き出すMEMO -->
+        <section>
+            <label for="memo-input" style="display: block;">イライラを書き出すMEMO</label>
+            <div id="memo-wrapper">
+                <textarea id="memo-input" rows="5" cols="50" placeholder="（例）なんでこんなの辛い。"></textarea>
+            </div>
+            <div>
+                <button type="button" onclick="purgeMemo()">リセット</button>
+            </div>
+        </section>
+
+        <hr>
+        <!-- 4. ミニゲームはこちら -->
+        <section>
+            <span>ミニゲームはこちら：</span>
+            <a href="game.html">ミニゲームへ移動する</a>
+        </section>
+
+    </main>
+
+    
