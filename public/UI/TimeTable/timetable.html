@@ -20,6 +20,8 @@
       </button>
 
       <div class="header-actions">
+        <button class="btn btn-ghost" onclick="openSendModal()">送信</button>
+        <button class="btn btn-primary" onclick="openReceiveModal()">受信</button>
         <select class="btn-mode-select" aria-label="モード選択" onchange="setMode(this.value)">
           <option value="view">講義確認・登録</option>
           <option value="delete">講義削除</option>
@@ -100,6 +102,48 @@
       </div>
     </div>
   </div>
+
+  <!-- 送信モーダル -->
+  <div class="modal-overlay" id="sendOverlay">
+    <div class="modal">
+      <h2>時間割を送信</h2>
+      
+      <label class="field">あなたの名前（送信者名）
+        <input id="sendSenderName" placeholder="山田 太郎" />
+        <div class="form-error" id="sendSenderError" style="display:none">名前を入力してください</div>
+      </label>
+
+      <div class="field">
+        <span>送信するクォーターを選択</span>
+        <div class="send-q-options" style="margin-top:8px;">
+          <label><input type="checkbox" name="sendQ" value="1Q" checked> 1Q</label>
+          <label><input type="checkbox" name="sendQ" value="2Q"> 2Q</label>
+          <label><input type="checkbox" name="sendQ" value="3Q"> 3Q</label>
+          <label><input type="checkbox" name="sendQ" value="4Q"> 4Q</label>
+        </div>
+      </div>
+
+      <div class="modal-actions" style="margin-top:20px;">
+        <button class="btn btn-ghost" onclick="closeModal('sendOverlay')">キャンセル</button>
+        <button class="btn btn-primary" onclick="executeSend()">送信する</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 受信モーダル -->
+  <div class="modal-overlay" id="receiveOverlay">
+    <div class="modal lg">
+      <h2 id="receiveModalTitle">受信した時間割</h2>
+      
+      <div id="receiveContent"></div>
+
+      <div class="modal-actions" style="margin-top:18px;">
+        <button class="btn btn-ghost" onclick="closeModal('receiveOverlay')">閉じる</button>
+        <button class="btn btn-primary" id="overwriteBtn" style="display:none;" onclick="confirmOverwrite()">このQを上書き</button>
+      </div>
+    </div>
+  </div>
+
   <script src="timetable.js"></script>
 </body>
 </html>

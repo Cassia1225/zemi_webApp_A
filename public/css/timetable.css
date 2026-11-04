@@ -340,8 +340,8 @@ body.timetable.delete-mode .delete-btn {
 }
 
 .timetable .modal.lg {
-  width: 460px;
-  padding: 34px 30px;
+  width: 520px;
+  padding: 28px 24px;
 }
 
 .timetable .view-course-name {
@@ -515,4 +515,120 @@ body.timetable.delete-mode .delete-btn {
     width: 32px;
     height: 32px;
   }
+}
+
+/* ========================================== */
+/* 追加: 送信・受信機能用スタイル */
+/* ========================================== */
+
+.timetable .send-q-options {
+  display: flex;
+  gap: 16px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #24344D;
+}
+
+.timetable .send-q-options label {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.timetable .receive-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.timetable .receive-item {
+  padding: 12px 16px;
+  background: #fff;
+  border: 1px solid #cfc9b8;
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.timetable .receive-item:hover {
+  background: #EFEADD;
+}
+
+.timetable .receive-sender {
+  font-weight: 700;
+  color: #24344D;
+}
+
+.timetable .receive-date {
+  font-size: 12px;
+  color: #8A8676;
+}
+
+/* 受信時の時間割プレビュー用グリッド */
+.timetable .preview-grid-wrapper {
+  width: 100%;
+  max-height: 360px;
+  overflow: auto;
+  border: 1px solid #24344D;
+  border-radius: 4px;
+  background: #fff;
+}
+
+.timetable .preview-grid {
+  display: grid;
+  grid-template-columns: 50px repeat(6, minmax(70px, 1fr));
+  grid-auto-rows: minmax(46px, auto);
+  gap: 1px;
+  background: #d8d3c4;
+  font-size: 11px;
+  min-width: 480px;
+}
+
+.timetable .preview-grid .corner {
+  background: #24344D;
+}
+
+.timetable .p-day-head {
+  background: #24344D;
+  color: #FAF7EF;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.timetable .p-period-cell {
+  background: #F5F1E6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: #24344D;
+}
+
+.timetable .p-cell {
+  background: #fff;
+  padding: 4px 2px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  word-break: break-all;
+}
+
+.timetable .p-cell .c-name {
+  font-weight: 700;
+  line-height: 1.2;
+  color: #2E2C27;
+}
+
+.timetable .p-cell .c-room {
+  font-size: 10px;
+  color: #5C594E;
+  margin-top: 2px;
 }
