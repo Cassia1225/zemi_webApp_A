@@ -7,6 +7,7 @@ const VERIFY_TOKEN_HOURS = 24;
 const RESET_TOKEN_MINUTES = 30;
 const PASSWORD_MIN_LENGTH = 8;
 const PASSWORD_MAX_BYTES = 72; // bcryptは72バイトより後を無視するため
+const LOGIN_ACCOUNT_LIMIT = 20; // 1アカウントあたりの失敗回数の上限（15分）
 
 // 存在しないメールでも同じ時間がかかるよう照合に使う、誰のものでもないハッシュ
 const DUMMY_PASSWORD_HASH = '$2y$12$LaeokbNBHCpyhmk3Klt4iemS5ig2v05uSYiLFPJ8/spY8qG9cUPOi';
@@ -140,6 +141,18 @@ function send_verification_mail(array $user): bool
         '【学生サポートアプリ】メールアドレスの確認',
         "下のリンクを開いて、メールアドレスの確認を完了してください。\n\n{$url}\n\n"
         . 'リンクの有効期限は' . VERIFY_TOKEN_HOURS . "時間です。\n心当たりがない場合は、このメールを無視してください。"
+    );
+}
+
+/** すでに確認済みのメールで登録されたとき、本人に知らせる */
+function send_already_registered_mail(array $user): bool
+{
+    $url = rtrim(env('APP_URL'), '/') . '/UI/Login/ForgotPassword.php';
+    return send_mail(
+        $user['email'],
+        '【学生サポートアプリ】登録の試みがありました',
+        "このメールアドレスは登録済みです。パスワードを忘れた場合は、下のリンクから再設定できます。\n\n{$url}\n\n"
+        . '心当たりがない場合は、このメールを無視してください。'
     );
 }
 

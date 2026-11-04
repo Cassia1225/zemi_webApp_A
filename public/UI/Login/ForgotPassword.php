@@ -8,10 +8,8 @@ require __DIR__ . '/../../../src/bootstrap.php';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     require_csrf();
     $email = normalize_email(post_string('email'));
-    $limitKey = 'mail:' . $email;
 
-    if (!rate_limited($limitKey)) {
-        rate_limit_hit($limitKey);
+    if (rate_limit_allow('mail:' . $email)) {
         $user = find_user_by_email($email);
         if ($user !== null) {
             send_reset_mail($user);

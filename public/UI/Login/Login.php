@@ -17,8 +17,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = normalize_email(post_string('email'));
     $password = post_string('password');
     $limitKey = 'login:' . $email . ':' . client_ip();
+    $accountKey = 'login:' . $email; // 接続元を変えながらの総当たり対策。学内の共有回線を考えて上限は高め
 
-    if (rate_limited($limitKey)) {
+    // 成功時に取り消すので、照合の前に試行を記録する
+    $allowed = rate_limit_allow($limitKey);
+    $allowed = rate_limit_allow($accountKey, LOGIN_ACCOUNT_LIMIT) && $allowed;
+
+    if (!$allowed) {
         $errors[] = 'ログインの試行回数が多すぎます。しばらくしてからお試しください';
     } else {
         $user = find_user_by_email($email);
@@ -26,13 +31,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $matched = password_verify($password, $user['password_hash'] ?? DUMMY_PASSWORD_HASH);
 
         if ($user === null || !$matched) {
-            rate_limit_hit($limitKey);
             $errors[] = 'メールアドレスまたはパスワードが違います';
         } elseif ($user['email_verified_at'] === null) {
             $_SESSION['pending_email'] = $user['email'];
             redirect('/UI/Login/VerifyPending.php');
         } else {
             rate_limit_clear($limitKey);
+            rate_limit_clear($accountKey);
             if (password_needs_rehash($user['password_hash'], PASSWORD_DEFAULT)) {
                 db()->prepare('UPDATE users SET password_hash = ? WHERE id = ?')
                     ->execute([password_hash($password, PASSWORD_DEFAULT), $user['id']]);

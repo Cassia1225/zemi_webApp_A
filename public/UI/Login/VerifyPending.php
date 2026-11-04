@@ -12,24 +12,21 @@ if ($email === null) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     require_csrf();
-    $limitKey = 'mail:' . $email;
-    if (rate_limited($limitKey)) {
-        flash('再送の回数が多すぎます。しばらくしてからお試しください');
-    } else {
-        rate_limit_hit($limitKey);
+    if (rate_limit_allow('mail:' . $email)) {
         $user = find_user_by_email($email);
-        if ($user !== null && $user['email_verified_at'] === null && send_verification_mail($user)) {
-            flash('確認メールを再送しました');
-        } else {
-            flash('確認メールを送れませんでした');
+        if ($user !== null && $user['email_verified_at'] === null) {
+            send_verification_mail($user);
         }
+        flash('確認メールを再送しました');
+    } else {
+        flash('再送の回数が多すぎます。しばらくしてからお試しください');
     }
     redirect('/UI/Login/VerifyPending.php');
 }
 
 page_header('メールを確認してください');
 ?>
-<p><?= h($email) ?> に確認メールを送りました。メール内のリンクを開くと、ログインできるようになります。</p>
+<p><?= h($email) ?> に確認メールを送りました。メール内のリンクを開いて手続きを進めてください。</p>
 <form method="post">
     <?= csrf_field() ?>
     <button type="submit">確認メールを再送する</button>

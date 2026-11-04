@@ -41,24 +41,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($errors === []) {
+        $hash = password_hash($password, PASSWORD_DEFAULT);
         $stmt = db()->prepare(
             'INSERT INTO users (email, public_share_id, display_name, password_hash)
              VALUES (?, ?, ?, ?)
              ON CONFLICT (email) DO NOTHING
              RETURNING *'
         );
-        $stmt->execute([$email, new_share_id(), $displayName, password_hash($password, PASSWORD_DEFAULT)]);
-        $user = $stmt->fetch();
+        $stmt->execute([$email, new_share_id(), $displayName, $hash]);
+        $user = $stmt->fetch() ?: null;
+        $isNew = $user !== null;
+        $user ??= find_user_by_email($email);
 
-        if (!$user) {
-            $errors[] = 'このメールアドレスはすでに登録されています';
-        } else {
-            $_SESSION['pending_email'] = $email;
-            if (!send_verification_mail($user)) {
-                flash('確認メールを送れませんでした。下のボタンから再送してください');
-            }
-            redirect('/UI/Login/VerifyPending.php');
+        // 他人が先に未確認のまま登録していても、本人の登録で乗っ取られないよう上書きする
+        if (!$isNew && $user['email_verified_at'] === null) {
+            db()->prepare('UPDATE users SET display_name = ?, password_hash = ? WHERE id = ?')
+                ->execute([$displayName, $hash, $user['id']]);
         }
+
+        if (rate_limit_allow('mail:' . $email)) {
+            if ($user['email_verified_at'] === null) {
+                send_verification_mail($user);
+            } else {
+                send_already_registered_mail($user);
+            }
+        }
+
+        // 登録済みかどうかが分からないよう、どの場合も同じ画面へ進める
+        $_SESSION['pending_email'] = $email;
+        redirect('/UI/Login/VerifyPending.php');
     }
 }
 
