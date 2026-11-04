@@ -25,4 +25,4 @@
  3. `php -S localhost:8000 -t public` で起動し、http://localhost:8000 を開く
 
 `public/` の中だけがブラウザから見える。`.env` や `src/` を `public/` に入れないこと。
-開発中の確認メールは送信されず、`storage/mail.log` に書き出される。
+確認メールはまだ送信されず、`storage/mail.log` に書き出される。

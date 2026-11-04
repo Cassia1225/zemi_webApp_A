@@ -20,15 +20,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // トークン消費とパスワード変更は、必ず両方成功させる
         $pdo = db();
         $pdo->beginTransaction();
-        $userId = consume_token('password_reset_tokens', $token);
-        if ($userId !== null) {
+        $row = consume_token('password_reset_tokens', $token);
+        if ($row !== null) {
             // session_version を増やして、他の端末のログインも無効にする
             $pdo->prepare('UPDATE users SET password_hash = ?, session_version = session_version + 1 WHERE id = ?')
-                ->execute([password_hash($password, PASSWORD_DEFAULT), $userId]);
+                ->execute([password_hash($password, PASSWORD_DEFAULT), $row['user_id']]);
         }
         $pdo->commit();
 
-        if ($userId !== null) {
+        if ($row !== null) {
             flash('パスワードを変更しました。ログインしてください');
             redirect('/UI/Login/Login.php');
         }
@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 page_header('新しいパスワードの設定');
-if (token_is_valid('password_reset_tokens', $token)) {
+if (find_valid_token('password_reset_tokens', $token) !== null) {
     show_errors($errors);
     ?>
     <form method="post">

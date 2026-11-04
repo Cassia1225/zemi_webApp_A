@@ -6,7 +6,8 @@ declare(strict_types=1);
 require __DIR__ . '/../../../src/bootstrap.php';
 
 $email = $_SESSION['pending_email'] ?? null;
-if ($email === null) {
+$passwordHash = $_SESSION['pending_password_hash'] ?? null;
+if ($email === null || $passwordHash === null) {
     redirect('/UI/Login/Login.php');
 }
 
@@ -15,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (rate_limit_allow('mail:' . $email)) {
         $user = find_user_by_email($email);
         if ($user !== null && $user['email_verified_at'] === null) {
-            send_verification_mail($user);
+            send_verification_mail($user, $passwordHash);
         }
         flash('確認メールを再送しました');
     } else {

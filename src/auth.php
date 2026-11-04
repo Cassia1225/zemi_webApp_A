@@ -7,7 +7,6 @@ const VERIFY_TOKEN_HOURS = 24;
 const RESET_TOKEN_MINUTES = 30;
 const PASSWORD_MIN_LENGTH = 8;
 const PASSWORD_MAX_BYTES = 72; // bcryptは72バイトより後を無視するため
-const LOGIN_ACCOUNT_LIMIT = 20; // 1アカウントあたりの失敗回数の上限（15分）
 
 // 存在しないメールでも同じ時間がかかるよう照合に使う、誰のものでもないハッシュ
 const DUMMY_PASSWORD_HASH = '$2y$12$LaeokbNBHCpyhmk3Klt4iemS5ig2v05uSYiLFPJ8/spY8qG9cUPOi';
@@ -106,7 +105,7 @@ function require_login_api(): array
 function login_user(array $user): void
 {
     session_regenerate_id(true); // ログイン前のセッションIDを使い回させない
-    unset($_SESSION['csrf_token'], $_SESSION['pending_email']);
+    unset($_SESSION['csrf_token'], $_SESSION['pending_email'], $_SESSION['pending_password_hash']);
     $_SESSION['user_id'] = (int) $user['id'];
     $_SESSION['session_version'] = (int) $user['session_version'];
     $_SESSION['last_seen'] = time();
@@ -123,17 +122,22 @@ function token_hash(string $token): string
     return hash('sha256', $token);
 }
 
-/** メール確認用のトークンを作り直して、確認メールを送る */
-function send_verification_mail(array $user): bool
+/**
+ * 確認メールを送る。登録時のパスワードはトークン側に持たせ、リンクを確認したときだけ反映する。
+ * 同じメールで他人が登録しても、本人のパスワードが書き換えられないようにするため。
+ */
+function send_verification_mail(array $user, string $passwordHash): bool
 {
     $token = bin2hex(random_bytes(32));
     $pdo = db();
-    $pdo->prepare('UPDATE email_verification_tokens SET used_at = now() WHERE user_id = ? AND used_at IS NULL')
-        ->execute([$user['id']]);
     $pdo->prepare(
-        'INSERT INTO email_verification_tokens (user_id, token_hash, expires_at)
-         VALUES (?, ?, now() + make_interval(hours => ?))'
-    )->execute([$user['id'], token_hash($token), VERIFY_TOKEN_HOURS]);
+        'UPDATE email_verification_tokens SET used_at = now()
+         WHERE user_id = ? AND pending_password_hash = ? AND used_at IS NULL'
+    )->execute([$user['id'], $passwordHash]);
+    $pdo->prepare(
+        'INSERT INTO email_verification_tokens (user_id, token_hash, pending_password_hash, expires_at)
+         VALUES (?, ?, ?, now() + make_interval(hours => ?))'
+    )->execute([$user['id'], token_hash($token), $passwordHash, VERIFY_TOKEN_HOURS]);
 
     $url = rtrim(env('APP_URL'), '/') . '/UI/Login/Verify.php?token=' . $token;
     return send_mail(
@@ -141,18 +145,6 @@ function send_verification_mail(array $user): bool
         '【学生サポートアプリ】メールアドレスの確認',
         "下のリンクを開いて、メールアドレスの確認を完了してください。\n\n{$url}\n\n"
         . 'リンクの有効期限は' . VERIFY_TOKEN_HOURS . "時間です。\n心当たりがない場合は、このメールを無視してください。"
-    );
-}
-
-/** すでに確認済みのメールで登録されたとき、本人に知らせる */
-function send_already_registered_mail(array $user): bool
-{
-    $url = rtrim(env('APP_URL'), '/') . '/UI/Login/ForgotPassword.php';
-    return send_mail(
-        $user['email'],
-        '【学生サポートアプリ】登録の試みがありました',
-        "このメールアドレスは登録済みです。パスワードを忘れた場合は、下のリンクから再設定できます。\n\n{$url}\n\n"
-        . '心当たりがない場合は、このメールを無視してください。'
     );
 }
 
@@ -176,25 +168,24 @@ function send_reset_mail(array $user): bool
     );
 }
 
-/** トークンが今も使えるか確認する（消費はしない） */
-function token_is_valid(string $table, string $token): bool
+/** トークンが今も使えるなら、その行を返す（消費はしない）。無効なら null */
+function find_valid_token(string $table, string $token): ?array
 {
     $stmt = db()->prepare(
-        "SELECT 1 FROM {$table} WHERE token_hash = ? AND used_at IS NULL AND expires_at > now()"
+        "SELECT * FROM {$table} WHERE token_hash = ? AND used_at IS NULL AND expires_at > now()"
     );
     $stmt->execute([token_hash($token)]);
-    return (bool) $stmt->fetchColumn();
+    return $stmt->fetch() ?: null;
 }
 
-/** トークンを1回だけ消費して user_id を返す。無効なら null */
-function consume_token(string $table, string $token): ?int
+/** トークンを1回だけ消費して、その行を返す。無効なら null */
+function consume_token(string $table, string $token): ?array
 {
     $stmt = db()->prepare(
         "UPDATE {$table} SET used_at = now()
          WHERE token_hash = ? AND used_at IS NULL AND expires_at > now()
-         RETURNING user_id"
+         RETURNING *"
     );
     $stmt->execute([token_hash($token)]);
-    $userId = $stmt->fetchColumn();
-    return $userId === false ? null : (int) $userId;
+    return $stmt->fetch() ?: null;
 }

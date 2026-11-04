@@ -49,27 +49,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
              RETURNING *'
         );
         $stmt->execute([$email, new_share_id(), $displayName, $hash]);
-        $user = $stmt->fetch() ?: null;
-        $isNew = $user !== null;
-        $user ??= find_user_by_email($email);
+        $user = $stmt->fetch() ?: find_user_by_email($email);
 
-        // 他人が先に未確認のまま登録していても、本人の登録で乗っ取られないよう上書きする
-        if (!$isNew && $user['email_verified_at'] === null) {
-            db()->prepare('UPDATE users SET display_name = ?, password_hash = ? WHERE id = ?')
-                ->execute([$displayName, $hash, $user['id']]);
-        }
-
-        if (rate_limit_allow('mail:' . $email)) {
-            if ($user['email_verified_at'] === null) {
-                send_verification_mail($user);
-            } else {
-                send_already_registered_mail($user);
+        if ($user['email_verified_at'] !== null) {
+            $errors[] = 'このメールアドレスはすでに登録されています';
+        } else {
+            if (rate_limit_allow('mail:' . $email)) {
+                send_verification_mail($user, $hash);
             }
+            $_SESSION['pending_email'] = $email;
+            $_SESSION['pending_password_hash'] = $hash;
+            redirect('/UI/Login/VerifyPending.php');
         }
-
-        // 登録済みかどうかが分からないよう、どの場合も同じ画面へ進める
-        $_SESSION['pending_email'] = $email;
-        redirect('/UI/Login/VerifyPending.php');
     }
 }
 

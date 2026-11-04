@@ -10,7 +10,7 @@ const RATE_LIMIT_WINDOW_MINUTES = 15;
  * 試行を1回記録し、上限以内なら true を返す。
  * 記録と回数の確認を1つのSQLで行うので、同時に送られても上限を超えて通らない。
  */
-function rate_limit_allow(string $key, int $max = RATE_LIMIT_MAX): bool
+function rate_limit_allow(string $key): bool
 {
     $stmt = db()->prepare(
         'INSERT INTO rate_limits (key_hash, attempts, window_start) VALUES (?, 1, now())
@@ -22,7 +22,7 @@ function rate_limit_allow(string $key, int $max = RATE_LIMIT_MAX): bool
          RETURNING attempts'
     );
     $stmt->execute([hash('sha256', $key), RATE_LIMIT_WINDOW_MINUTES, RATE_LIMIT_WINDOW_MINUTES]);
-    return (int) $stmt->fetchColumn() <= $max;
+    return (int) $stmt->fetchColumn() <= RATE_LIMIT_MAX;
 }
 
 function rate_limit_clear(string $key): void
