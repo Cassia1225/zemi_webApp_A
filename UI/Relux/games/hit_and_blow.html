@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hit and Blow</title>
+    <style>
+        /* リラックス画面に合わせたベーススタイル */
+        body {
+            font-family: sans-serif;
+            background-color: #f7f9fc;
+            color: #333;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 500px; /* ゲーム画面は少し幅を狭くして視線を集中させる */
+            margin: 40px auto;
+            background: #fff;
+            padding: 40px 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        h1 {
+            color: #2b6cb0;
+            margin-bottom: 5px;
+        }
+
+        p.desc {
+            color: #718096;
+            margin-bottom: 30px;
+            font-size: 0.95rem;
+        }
+
+        /* 数字入力エリア */
+        .input-group {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .input-group input {
+            width: 60px;
+            height: 60px;
+            font-size: 28px;
+            text-align: center;
+            border: 2px solid #cbd5e0;
+            border-radius: 8px;
+            background-color: #edf2f7;
+            color: #2d3748;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .input-group input:focus {
+            border-color: #63b3ed;
+            background-color: #fff;
+        }
+
+        /* 予想ボタン */
+        .submit-btn {
+            background-color: #4299e1;
+            color: white;
+            border: none;
+            padding: 12px 40px;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            box-shadow: 0 4px 6px rgba(66, 153, 225, 0.2);
+        }
+
+        .submit-btn:hover {
+            background-color: #3182ce;
+        }
+
+        /* 履歴表示エリア */
+        .history-board {
+            margin-top: 40px;
+            text-align: left;
+            background: #edf2f7;
+            padding: 20px;
+            border-radius: 8px;
+            min-height: 150px;
+        }
+
+        .history-board h3 {
+            margin: 0 0 15px 0;
+            color: #4a5568;
+            font-size: 1rem;
+            border-bottom: 2px solid #cbd5e0;
+            padding-bottom: 5px;
+        }
+
+        .history-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .history-list li {
+            padding: 8px 0;
+            border-bottom: 1px dashed #cbd5e0;
+            color: #4a5568;
+            font-size: 0.95rem;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 30px;
+            color: #718096;
+            text-decoration: none;
+            font-size: 0.95rem;
+        }
+
+        .back-link:hover {
+            color: #2d3748;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Hit and Blow</h1>
+        <p class="desc">0〜9の異なる3つの数字を当ててください</p>
+
+        <!-- 入力フォーム -->
+        <div class="input-group">
+            <input type="number" min="0" max="9" placeholder="0">
+            <input type="number" min="0" max="9" placeholder="0">
+            <input type="number" min="0" max="9" placeholder="0">
+        </div>
+        
+        <button class="submit-btn" type="button">予想する</button>
+
+        <!-- 履歴表示（UIサンプルとして静的に記述） -->
+        <div class="history-board">
+            <h3>プレイ履歴</h3>
+            <ul class="history-list">
+                <!-- 実際の動作時はここに結果が追加されます -->
+                <li><span>1回目: [ 1, 2, 3 ]</span> <span>1 Hit / 0 Blow</span></li>
+                <li><span>2回目: [ 4, 5, 6 ]</span> <span>0 Hit / 2 Blow</span></li>
+            </ul>
+        </div>
+
+        <a href="../game.html" class="back-link">← ゲーム選択に戻る</a>
+    </div>
+
+</body>
+</html>
