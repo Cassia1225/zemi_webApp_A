@@ -5,124 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hit and Blow</title>
     <style>
-        /* リラックス画面に合わせたベーススタイル */
-        body {
-            font-family: sans-serif;
-            background-color: #f7f9fc;
-            color: #333;
-            text-align: center;
-            margin: 0;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 500px; /* ゲーム画面は少し幅を狭くして視線を集中させる */
-            margin: 40px auto;
-            background: #fff;
-            padding: 40px 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-        }
-
-        h1 {
-            color: #2b6cb0;
-            margin-bottom: 5px;
-        }
-
-        p.desc {
-            color: #718096;
-            margin-bottom: 30px;
-            font-size: 0.95rem;
-        }
-
-        /* 数字入力エリア */
-        .input-group {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-
-        .input-group input {
-            width: 60px;
-            height: 60px;
-            font-size: 28px;
-            text-align: center;
-            border: 2px solid #cbd5e0;
-            border-radius: 8px;
-            background-color: #edf2f7;
-            color: #2d3748;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
-        .input-group input:focus {
-            border-color: #63b3ed;
-            background-color: #fff;
-        }
-
-        /* 予想ボタン */
-        .submit-btn {
-            background-color: #4299e1;
-            color: white;
-            border: none;
-            padding: 12px 40px;
-            font-size: 1.1rem;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            box-shadow: 0 4px 6px rgba(66, 153, 225, 0.2);
-        }
-
-        .submit-btn:hover {
-            background-color: #3182ce;
-        }
-
-        /* 履歴表示エリア */
-        .history-board {
-            margin-top: 40px;
-            text-align: left;
-            background: #edf2f7;
-            padding: 20px;
-            border-radius: 8px;
-            min-height: 150px;
-        }
-
-        .history-board h3 {
-            margin: 0 0 15px 0;
-            color: #4a5568;
-            font-size: 1rem;
-            border-bottom: 2px solid #cbd5e0;
-            padding-bottom: 5px;
-        }
-
-        .history-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .history-list li {
-            padding: 8px 0;
-            border-bottom: 1px dashed #cbd5e0;
-            color: #4a5568;
-            font-size: 0.95rem;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .back-link {
-            display: inline-block;
-            margin-top: 30px;
-            color: #718096;
-            text-decoration: none;
-            font-size: 0.95rem;
-        }
-
-        .back-link:hover {
-            color: #2d3748;
-            text-decoration: underline;
-        }
+        body { font-family: sans-serif; background-color: #f7f9fc; color: #333; text-align: center; margin: 0; padding: 20px; }
+        .container { max-width: 500px; margin: 40px auto; background: #fff; padding: 40px 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); }
+        h1 { color: #2b6cb0; margin-bottom: 5px; }
+        p.desc { color: #718096; margin-bottom: 30px; font-size: 0.95rem; }
+        .input-group { display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; }
+        .input-group input { width: 60px; height: 60px; font-size: 28px; text-align: center; border: 2px solid #cbd5e0; border-radius: 8px; background-color: #edf2f7; color: #2d3748; outline: none; transition: border-color 0.2s; }
+        .input-group input:focus { border-color: #63b3ed; background-color: #fff; }
+        .submit-btn { background-color: #4299e1; color: white; border: none; padding: 12px 40px; font-size: 1.1rem; border-radius: 8px; cursor: pointer; transition: background-color 0.2s; box-shadow: 0 4px 6px rgba(66, 153, 225, 0.2); }
+        .submit-btn:hover { background-color: #3182ce; }
+        .history-board { margin-top: 40px; text-align: left; background: #edf2f7; padding: 20px; border-radius: 8px; min-height: 150px; }
+        .history-board h3 { margin: 0 0 15px 0; color: #4a5568; font-size: 1rem; border-bottom: 2px solid #cbd5e0; padding-bottom: 5px; }
+        .history-list { list-style: none; padding: 0; margin: 0; }
+        .history-list li { padding: 8px 0; border-bottom: 1px dashed #cbd5e0; color: #4a5568; font-size: 0.95rem; display: flex; justify-content: space-between; }
+        .back-link { display: inline-block; margin-top: 30px; color: #718096; text-decoration: none; font-size: 0.95rem; }
+        .back-link:hover { color: #2d3748; text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -131,27 +28,102 @@
         <h1>Hit and Blow</h1>
         <p class="desc">0〜9の異なる3つの数字を当ててください</p>
 
-        <!-- 入力フォーム -->
+        <!-- ループ処理のため、あえて min, max 属性を削除しています -->
         <div class="input-group">
-            <input type="number" min="0" max="9" placeholder="0">
-            <input type="number" min="0" max="9" placeholder="0">
-            <input type="number" min="0" max="9" placeholder="0">
+            <input type="number" placeholder="0" class="guess-input">
+            <input type="number" placeholder="0" class="guess-input">
+            <input type="number" placeholder="0" class="guess-input">
         </div>
         
-        <button class="submit-btn" type="button">予想する</button>
+        <button class="submit-btn" type="button" id="guess-btn">予想する</button>
 
-        <!-- 履歴表示（UIサンプルとして静的に記述） -->
         <div class="history-board">
             <h3>プレイ履歴</h3>
-            <ul class="history-list">
-                <!-- 実際の動作時はここに結果が追加されます -->
-                <li><span>1回目: [ 1, 2, 3 ]</span> <span>1 Hit / 0 Blow</span></li>
-                <li><span>2回目: [ 4, 5, 6 ]</span> <span>0 Hit / 2 Blow</span></li>
+            <ul class="history-list" id="history-list">
+                <!-- JavaScriptでここに結果が追加されます -->
             </ul>
         </div>
 
         <a href="../game.html" class="back-link">← ゲーム選択に戻る</a>
     </div>
 
+    <script>
+        // 1. 正解の3桁の数字をランダムに生成（重複なし）
+        let answer = [];
+        while(answer.length < 3) {
+            let r = Math.floor(Math.random() * 10);
+            if(answer.indexOf(r) === -1) {
+                answer.push(r);
+            }
+        }
+        let attemptCount = 0;
+
+        // 2. 0未満で9に、9を超えたら0にループさせる処理
+        const inputs = document.querySelectorAll('.guess-input');
+        inputs.forEach(input => {
+            input.addEventListener('input', function() {
+                let val = parseInt(this.value, 10);
+                if (val < 0) {
+                    this.value = 9;
+                } else if (val > 9) {
+                    this.value = 0;
+                } else if (this.value.length > 1) {
+                    // 2桁以上直接入力された場合は最後の1文字だけ採用する
+                    this.value = this.value.slice(-1);
+                }
+            });
+        });
+
+        // 3. 予想するボタンを押した時のHit/Blow判定処理
+        document.getElementById('guess-btn').addEventListener('click', () => {
+            let guess = [];
+            let isValid = true;
+
+            // 入力値の取得とチェック
+            inputs.forEach(input => {
+                let val = parseInt(input.value, 10);
+                if (isNaN(val)) isValid = false;
+                guess.push(val);
+            });
+
+            if (!isValid) {
+                alert("3つの数字をすべて入力してください。");
+                return;
+            }
+
+            // 重複チェック
+            const uniqueGuess = new Set(guess);
+            if (uniqueGuess.size !== 3) {
+                alert("数字は重複しないように入力してください。");
+                return;
+            }
+
+            // HitとBlowの計算
+            let hit = 0;
+            let blow = 0;
+            for (let i = 0; i < 3; i++) {
+                if (guess[i] === answer[i]) {
+                    hit++;
+                } else if (answer.includes(guess[i])) {
+                    blow++;
+                }
+            }
+
+            attemptCount++;
+
+            // 履歴に結果を追加
+            const historyList = document.getElementById('history-list');
+            const newRecord = document.createElement('li');
+            newRecord.innerHTML = `<span>${attemptCount}回目: [ ${guess.join(', ')} ]</span> <span>${hit} Hit / ${blow} Blow</span>`;
+            
+            // 最新の履歴を一番上に追加する
+            historyList.insertBefore(newRecord, historyList.firstChild);
+
+            // クリア判定
+            if (hit === 3) {
+                alert(`おめでとうございます！ ${attemptCount}回目で正解しました！`);
+            }
+        });
+    </script>
 </body>
 </html>
