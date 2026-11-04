@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>あそびかた - Hit and Blow</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f7f9fc; color: #333; text-align: center; margin: 0; padding: 20px; }
+        .container { max-width: 600px; margin: 40px auto; background: #fff; padding: 40px 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); }
+        h1 { color: #2b6cb0; margin-bottom: 20px; }
+        
+        /* 説明文のスタイル */
+        .description { text-align: left; line-height: 1.6; color: #4a5568; margin-bottom: 30px; }
+        .description p { margin-bottom: 15px; }
+        
+        /* 図解エリアのスタイル */
+        .diagram-box { background-color: #edf2f7; padding: 20px; border-radius: 8px; margin-bottom: 30px; text-align: left; }
+        .diagram-title { font-weight: bold; margin-bottom: 10px; color: #2d3748; text-align: center; }
+        .number-row { display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 15px; }
+        .num-box { width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; background-color: #fff; border: 2px solid #cbd5e0; border-radius: 6px; font-size: 20px; font-weight: bold; }
+        .num-box.hit { border-color: #f56565; color: #e53e3e; } /* Hitは赤っぽく */
+        .num-box.blow { border-color: #d69e2e; color: #b7791f; } /* Blowは黄色っぽく */
+        
+        .explanation-list { list-style: none; padding: 0; margin: 0; font-size: 0.95rem; }
+        .explanation-list li { margin-bottom: 8px; }
+        .badge-hit { display: inline-block; background: #f56565; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.85rem; font-weight: bold; margin-right: 5px; }
+        .badge-blow { display: inline-block; background: #d69e2e; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.85rem; font-weight: bold; margin-right: 5px; }
+
+        /* ボタン類 */
+        .start-btn { display: inline-block; background-color: #4299e1; color: white; text-decoration: none; padding: 12px 40px; font-size: 1.1rem; border-radius: 8px; transition: background-color 0.2s; box-shadow: 0 4px 6px rgba(66, 153, 225, 0.2); font-weight: bold; }
+        .start-btn:hover { background-color: #3182ce; }
+        .back-link { display: block; margin-top: 30px; color: #718096; text-decoration: none; font-size: 0.95rem; }
+        .back-link:hover { color: #2d3748; text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Hit and Blow のあそびかた</h1>
+        
+        <div class="description">
+            <p>隠された <strong>3ケタの数字</strong> を当てる推理ゲームです。数字は「0〜9」までで、同じ数字は2回以上使われません。</p>
+            <p>数字を予想すると、正解にどれくらい近づいているか<strong>「Hit（ヒット）」</strong>と<strong>「Blow（ブロー）」</strong>というヒントがもらえます。</p>
+        </div>
+
+        <!-- HTMLとCSSで作った図解 -->
+        <div class="diagram-box">
+            <div class="diagram-title">【例】正解が「7」「2」「5」のとき</div>
+            
+            <div class="number-row">
+                <span>あなたの予想：</span>
+                <div class="num-box hit">7</div>
+                <div class="num-box blow">5</div>
+                <div class="num-box">9</div>
+            </div>
+
+            <ul class="explanation-list">
+                <li><span class="badge-hit">1 Hit</span> 最初の「7」は、<strong>数字も場所もピッタリ正解！</strong></li>
+                <li><span class="badge-blow">1 Blow</span> 次の「5」は、<strong>数字は合っているけど場所が違う！</strong></li>
+                <li>「9」はハズレなのでノーカウント。</li>
+            </ul>
+            <p style="text-align: center; margin-top: 15px; font-weight: bold; color: #2b6cb0;">➔ この場合のヒントは「1 Hit / 1 Blow」になります。</p>
+        </div>
+
+        <!-- 実際のゲーム画面へ遷移 -->
+        <a href="hit_and_blow.html" class="start-btn">ゲームをはじめる</a>
+        
+        <!-- 前の選択画面へ戻る -->
+        <a href="../game.html" class="back-link">← ゲーム選択に戻る</a>
+    </div>
+
+</body>
+</html>
