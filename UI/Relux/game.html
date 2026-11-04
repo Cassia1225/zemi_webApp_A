@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ミニゲーム選択</title>
+    <style>
+        /* CSS: リラックス画面に合わせた落ち着いた配色とカードレイアウト */
+        body {
+            font-family: sans-serif;
+            background-color: #f7f9fc;
+            color: #333;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            background: #fff;
+            padding: 40px 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        h1 {
+            color: #4a5568;
+            margin-bottom: 10px;
+        }
+
+        p {
+            color: #718096;
+            margin-bottom: 30px;
+        }
+
+        .game-grid {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        /* リンクタグ自体をカードとしてスタイリング */
+        .game-card {
+            display: block;
+            background: #edf2f7;
+            border: 2px solid transparent;
+            border-radius: 10px;
+            padding: 20px;
+            width: 200px;
+            text-decoration: none; /* リンクの下線を消す */
+            color: inherit; /* 文字色を親要素に合わせる */
+            transition: all 0.3s ease;
+        }
+
+        /* ホバー時の浮き上がりアクション */
+        .game-card:hover {
+            transform: translateY(-5px);
+            background: #e2e8f0;
+            border-color: #63b3ed;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .game-card h3 {
+            margin: 0 0 10px 0;
+            color: #2b6cb0;
+            font-size: 1.2rem;
+        }
+
+        .game-card p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: #4a5568;
+            line-height: 1.4;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 40px;
+            color: #718096;
+            text-decoration: none;
+            font-size: 0.95rem;
+        }
+
+        .back-link:hover {
+            color: #2d3748;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>ミニゲーム</h1>
+            <p>息抜きに遊ぶゲームを選んでください</p>
+        </header>
+
+        <main>
+            <div class="game-grid">
+                <!-- 遷移先のHTMLファイル名（hit_and_blow.htmlなど）は今後の実装に合わせて変更してください -->
+                <a href="hit_and_blow.html" class="game-card">
+                    <h3>Hit and Blow</h3>
+                    <p>数字と位置を当てる<br>論理パズル</p>
+                </a>
+
+                <a href="number_guess.html" class="game-card">
+                    <h3>数当てゲーム</h3>
+                    <p>大小のヒントから<br>正解を導き出す</p>
+                </a>
+
+                <a href="tic_tac_toe.html" class="game-card">
+                    <h3>三目並べ</h3>
+                    <p>シンプルで定番の<br>○×ゲーム</p>
+                </a>
+            </div>
+            
+            <!-- 休憩画面（元の画面）への戻るリンク -->
+            <a href="relax.html" class="back-link">← 休憩画面に戻る</a>
+        </main>
+    </div>
+
+</body>
+</html>
