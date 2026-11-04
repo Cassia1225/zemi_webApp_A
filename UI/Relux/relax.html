@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>休憩（リラックス）</title>
+    <title>休憩</title>
+    <link rel="stylesheet" href="relax.css">
 </head>
 <body>
 
@@ -13,15 +14,19 @@
 
     <main>
         
+        <!-- 1. リラックスミュージック -->
         <section>
             <label for="music-select">リラックスミュージック：</label>
             <select id="music-select">
-                <option value="none">癒されミュージック</option>
-                <option value="rain">🌧️ 1. しとしと降る雨の音</option>
-                <option value="waves">🌊 2. 穏やかな寄せる波の音</option>
-                <option value="fire">🔥 3. パチパチ揺れる焚き火の音</option>
-                <option value="birds">🐦 4. 鳥のさえずり・森の音</option>
-                <option value="bowl">🧘 5. 瞑想用シンギングボウル</option>
+                <!--<option value="none">癒されミュージック</option>-->
+                <option value="rain.mp3"> 🌧️ 1.雨の音</option>
+                <option value="waves.mp3">🌊 2. 海辺、波の音</option>
+                <option value="tanbo.mp3">🌙 3. 秋の夜、虫の声</option>
+                <option value="birds.mp3">🐦 4. 鳥のさえずり</option>
+                <option value="zattou.mp3">🏙️ 5. 街の雑踏</option>
+                <option value="music_1.mp3">🎹 6. ピアノリラックス1</option>
+                <option value="music_2.mp3">🎹 7. ピアノリラックス2</option>
+                
             </select>
             <button id="play-btn" type="button">再生</button>
 
@@ -30,10 +35,16 @@
                 <label for="volume-slider">音量：</label>
                 <input type="range" id="volume-slider" min="0" max="1" step="0.05" value="0.5">
             </div>
+
+            <!-- BGM再生用オーディオ要素 -->
+            <audio id="bgm-player" loop></audio>
+            <!-- タイマー終了音用オーディオ要素 -->
+            <audio id="alarm-player" src="alarm.mp3"></audio>
         </section>
 
         <hr>
 
+        <!-- 2. 休憩時間を決める -->
         <section>
             <div>
                 <span>休憩時間を決める：</span>
@@ -74,6 +85,7 @@
         </section>
 
         <hr>
+
         <!-- 4. ミニゲームはこちら -->
         <section>
             <span>ミニゲームはこちら：</span>
@@ -82,4 +94,7 @@
 
     </main>
 
-    
+    <!-- JavaScript ロジックの読み込み -->
+    <script src="relax.js"></script>
+</body>
+</html>

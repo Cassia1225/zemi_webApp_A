@@ -1,0 +1,155 @@
+@charset "UTF-8";
+
+/* 全体設定（目に優しい白基調・柔らかいフォント） */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: #fcfcf9; /* 眩しくない柔らかいオフホワイト */
+    color: #333333;           /* 強い純黒を避けたダークグレー */
+    line-height: 1.6;
+    padding: 24px;
+}
+
+/* ヘッダー */
+header {
+    margin-bottom: 20px;
+}
+
+header h1 {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #222222;
+}
+
+/* 各セクション・区切り線 */
+section {
+    margin-bottom: 16px;
+}
+
+hr {
+    border: none;
+    border-top: 1px solid #e2e2dd; /* 目立たない薄い区切り線 */
+    margin: 20px 0;
+}
+
+/* ラベル・テキスト */
+label, span {
+    color: #444444;
+    font-size: 1rem;
+}
+
+/* ドロップダウン（select） */
+select {
+    padding: 3px 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #ffffff;
+    color: #333;
+    font-size: 0.95rem;
+    outline: none;
+    cursor: pointer;
+}
+
+select:focus {
+    border-color: #888;
+}
+
+/* ボタン（標準ボタンの見た目をベースに少しだけ柔らかく） */
+button {
+    padding: 3px 12px;
+    border: 1px solid #b5b5b0;
+    border-radius: 4px;
+    background-color: #f4f4f0;
+    color: #333;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+button:hover {
+    background-color: #e8e8e2;
+}
+
+button:active {
+    background-color: #dcdcd5;
+}
+
+/* 1. リラックスミュージック */
+#music-select {
+    margin-right: 6px;
+}
+
+#volume-container {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#volume-slider {
+    accent-color: #666;
+    cursor: pointer;
+}
+
+/* 2. 休憩時間タイマー */
+section > div:first-child {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 12px;
+}
+
+#timer-box {
+    margin-top: 10px;
+}
+
+#timer-display {
+    font-size: 2.2rem;
+    font-weight: bold;
+    font-family: monospace, sans-serif;
+    color: #222;
+    margin-bottom: 10px;
+}
+
+#timer-box div {
+    display: flex;
+    gap: 6px;
+}
+
+/* 3. イライラを書き出すMEMO */
+#memo-wrapper {
+    margin: 8px 0;
+}
+
+#memo-input {
+    width: 100%;
+    max-width: 500px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #ffffff;
+    color: #333;
+    font-size: 0.95rem;
+    outline: none;
+    resize: vertical;
+}
+
+#memo-input:focus {
+    border-color: #888;
+}
+
+/* 4. ミニゲームリンク */
+a {
+    color: #4a6b82; /* 眩しくない落ち着いたくすみブルー */
+    text-decoration: underline;
+}
+
+a:hover {
+    color: #2c4355;
+}

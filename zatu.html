@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>リラックス & 休憩スペース</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Zen Maru Gothic', sans-serif;
+            background-color: #82D8D5;
+            min-height: 100vh;
+        }
+
+        /* メモ消去アニメーション */
+        @keyframes floatAndBurn {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+                filter: blur(0px);
+            }
+            50% {
+                transform: translateY(-30px) scale(0.95);
+                opacity: 0.5;
+                filter: blur(2px) sepia(0.8);
+            }
+            100% {
+                transform: translateY(-80px) scale(0.5);
+                opacity: 0;
+                filter: blur(6px);
+            }
+        }
+
+        .burn-anim {
+            animation: floatAndBurn 1.2s ease-in-out forwards;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="text-gray-800 antialiased p-4 sm:p-6 md:p-8 flex flex-col justify-between items-center min-h-screen">
+
+    <div class="max-w-3xl w-full space-y-6 sm:space-y-8 my-auto">
+        
+        <!-- ヘッダー -->
+        <header class="text-center pt-2 pb-1">
+            <h1 class="text-2xl sm:text-3xl font-bold text-teal-950 tracking-wide flex items-center justify-center gap-2">
+                <i class="fa-solid fa-spa text-teal-800"></i> リラックスルーム
+            </h1>
+        </header>
+
+        <!-- メインコンテンツカード -->
+        <div class="bg-white/40 backdrop-blur-md rounded-2xl p-6 sm:p-8 shadow-md border border-white/40 space-y-7">
+            
+            <!-- 1. リラックスミュージック -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <label for="music-select" class="font-bold text-teal-950 text-base sm:text-lg shrink-0">
+                    リラックスミュージック：
+                </label>
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <select id="music-select" class="flex-1 sm:w-80 bg-white/90 border border-teal-600/30 text-gray-800 py-2.5 px-4 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-600 font-medium cursor-pointer">
+                        <option value="none">セレクトボックスになってる。フリー音源5つくらい ▽</option>
+                        <option value="rain">🌧️ 1. しとしと降る雨の音</option>
+                        <option value="waves">🌊 2. 穏やかな寄せる波の音</option>
+                        <option value="fire">🔥 3. パチパチ揺れる焚き火の音</option>
+                        <option value="birds">🐦 4. 鳥のさえずり・森の音</option>
+                        <option value="bowl">🧘 5. 瞑想用シンギングボウル</option>
+                    </select>
+                    <button id="play-btn" class="bg-teal-700 hover:bg-teal-800 text-white p-2.5 px-4 rounded-xl shadow transition flex items-center justify-center min-w-[44px]">
+                        <i id="play-icon" class="fa-solid fa-play"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 音量バー（再生時のみ表示） -->
+            <div id="volume-container" class="hidden flex items-center justify-end gap-3 text-sm text-teal-950 pt-0 pr-1">
+                <i class="fa-solid fa-volume-low"></i>
+                <input type="range" id="volume-slider" min="0" max="1" step="0.05" value="0.5" class="w-32 accent-teal-700 cursor-pointer">
+                <i class="fa-solid fa-volume-high"></i>
+            </div>
+
+            <!-- 2. 休憩時間を決める -->
+            <div class="space-y-3">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <span class="font-bold text-teal-950 text-base sm:text-lg shrink-0">
+                        休憩時間を決める：
+                    </span>
+                    
+                    <!-- 時間選択ボタン群 -->
+                    <div class="flex items-center rounded-xl border border-teal-800/40 bg-white/80 overflow-hidden shadow-sm w-full sm:w-auto">
+                        <button onclick="setTimer(3)" class="flex-1 sm:flex-none px-4 py-2 border-r border-teal-800/20 text-teal-950 font-bold hover:bg-teal-100/50 transition">3分</button>
+                        <button onclick="setTimer(5)" class="flex-1 sm:flex-none px-4 py-2 border-r border-teal-800/20 text-teal-950 font-bold hover:bg-teal-100/50 transition">5分</button>
+                        <button onclick="setTimer(10)" class="flex-1 sm:flex-none px-4 py-2 border-r border-teal-800/20 text-teal-950 font-bold hover:bg-teal-100/50 transition">10分</button>
+                        
+                        <!-- カスタム選択ドロップダウン -->
+                        <select id="custom-time" onchange="setCustomTimer(this.value)" class="flex-1 sm:flex-none px-3 py-2 bg-transparent text-teal-950 font-bold focus:outline-none cursor-pointer">
+                            <option value="" disabled selected>選択▽</option>
+                            <option value="1">1分</option>
+                            <option value="15">15分</option>
+                            <option value="20">20分</option>
+                            <option value="30">30分</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- カウントダウンタイマー表示 -->
+                <div id="timer-box" class="bg-white/60 rounded-xl p-3 sm:p-4 text-center border border-white/60 space-y-2 mt-2">
+                    <div class="text-3xl sm:text-4xl font-bold text-teal-950 tracking-wider font-mono" id="timer-display">00:00</div>
+                    <div class="flex justify-center gap-3 pt-1">
+                        <button id="timer-start-btn" onclick="toggleTimer()" class="px-5 py-1.5 bg-teal-700 hover:bg-teal-800 text-white rounded-lg text-sm font-bold shadow transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-play text-xs"></i> スタート
+                        </button>
+                        <button onclick="resetTimer()" class="px-4 py-1.5 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg text-sm font-bold transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-rotate-right text-xs"></i> リセット
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. イライラを書き出すMEMO -->
+            <div class="space-y-3 pt-2">
+                <label for="memo-input" class="block font-bold text-teal-950 text-base sm:text-lg">
+                    イライラを書き出すMEMO
+                </label>
+
+                <div class="relative" id="memo-wrapper">
+                    <textarea id="memo-input" rows="5" placeholder="（例）なんでこんなの辛い。" 
+                        class="w-full bg-white/80 border border-teal-800/30 rounded-xl p-4 text-gray-800 placeholder-gray-500/80 focus:outline-none focus:ring-2 focus:ring-teal-600 shadow-inner resize-y transition"></textarea>
+                </div>
+
+                <div class="flex justify-end pt-1">
+                    <button onclick="purgeMemo()" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-sm rounded-xl shadow transition flex items-center gap-2 active:scale-95">
+                        <i class="fa-solid fa-fire-flame-curved"></i> メモを破棄してスッキリ消去
+                    </button>
+                </div>
+            </div>
+
+            <!-- 4. ミニゲームはこちら -->
+            <div class="pt-4 border-t border-teal-800/20">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <span class="font-bold text-teal-950 text-base sm:text-lg">
+                        ミニゲームはこちら
+                    </span>
+                    <a href="game.html" class="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-teal-800 hover:bg-teal-900 text-white font-bold rounded-xl shadow transition transform hover:-translate-y-0.5 active:translate-y-0">
+                        <i class="fa-solid fa-gamepad"></i> ミニゲームへ移動する <i class="fa-solid fa-arrow-right text-xs"></i>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <footer class="mt-8 text-center text-xs text-teal-950 opacity-70">
+        <p>© Relax Space</p>
+    </footer>
+
+    <!-- JavaScript ロジック -->
+    <script>
+        /* -------------------------------------------------------------
+           1. Web Audio API 音源ジェネレーター（外部ファイル不要）
+        ------------------------------------------------------------- */
+        let audioCtx = null;
+        let currentNoiseNode = null;
+        let gainNode = null;
+        let isPlaying = false;
+        let birdsInterval = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        const musicSelect = document.getElementById('music-select');
+        const playBtn = document.getElementById('play-btn');
+        const playIcon = document.getElementById('play-icon');
+        const volumeContainer = document.getElementById('volume-container');
+        const volumeSlider = document.getElementById('volume-slider');
+
+        musicSelect.addEventListener('change', () => {
+            if (musicSelect.value === 'none') {
+                stopSound();
+                volumeContainer.classList.add('hidden');
+            } else {
+                volumeContainer.classList.remove('hidden');
+                if (isPlaying) {
+                    playSound(musicSelect.value);
+                }
+            }
+        });
+
+        playBtn.addEventListener('click', () => {
+            initAudio();
+            if (musicSelect.value === 'none') {
+                alert('リラックスミュージックを選択してください。');
+                return;
+            }
+            if (isPlaying) {
+                stopSound();
+            } else {
+                playSound(musicSelect.value);
+            }
+        });
+
+        volumeSlider.addEventListener('input', (e) => {
+            if (gainNode) {
+                gainNode.gain.setValueAtTime(e.target.value, audioCtx.currentTime);
+            }
+        });
+
+        function stopSound() {
+            if (currentNoiseNode) {
+                try {
+                    currentNoiseNode.stop();
+                    currentNoiseNode.disconnect();
+                } catch (e) {}
+                currentNoiseNode = null;
+            }
+            if (birdsInterval) {
+                clearInterval(birdsInterval);
+                birdsInterval = null;
+            }
+            isPlaying = false;
+            playIcon.className = 'fa-solid fa-play';
+            playBtn.classList.replace('bg-amber-600', 'bg-teal-700');
+            playBtn.classList.replace('hover:bg-amber-700', 'hover:bg-teal-800');
+        }
+
+        function playSound(type) {
+            stopSound();
+            initAudio();
+
+            gainNode = audioCtx.createGain();
+            gainNode.gain.setValueAtTime(volumeSlider.value, audioCtx.currentTime);
+            gainNode.connect(audioCtx.destination);
+
+            isPlaying = true;
+            playIcon.className = 'fa-solid fa-pause';
+            playBtn.classList.replace('bg-teal-700', 'bg-amber-600');
+            playBtn.classList.replace('hover:bg-teal-800', 'hover:bg-amber-700');
+
+            const bufferSize = audioCtx.sampleRate * 2;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+
+            if (type === 'rain') {
+                let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+                for (let i = 0; i < bufferSize; i++) {
+                    let white = Math.random() * 2 - 1;
+                    b0 = 0.99886 * b0 + white * 0.0555179;
+                    b1 = 0.99332 * b1 + white * 0.0750759;
+                    b2 = 0.96900 * b2 + white * 0.1538520;
+                    b3 = 0.86650 * b3 + white * 0.3104856;
+                    b4 = 0.55000 * b4 + white * 0.5329522;
+                    b5 = -0.7616 * b5 - white * 0.0168980;
+                    data[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.04;
+                    b6 = white * 0.115926;
+                }
+                const noise = audioCtx.createBufferSource();
+                noise.buffer = buffer;
+                noise.loop = true;
+                noise.connect(gainNode);
+                noise.start();
+                currentNoiseNode = noise;
+
+            } else if (type === 'waves') {
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = (Math.random() * 2 - 1) * 0.2;
+                }
+                const noise = audioCtx.createBufferSource();
+                noise.buffer = buffer;
+                noise.loop = true;
+
+                const filter = audioCtx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(200, audioCtx.currentTime);
+
+                const lfo = audioCtx.createOscillator();
+                lfo.frequency.setValueAtTime(0.12, audioCtx.currentTime);
+                const lfoGain = audioCtx.createGain();
+                lfoGain.gain.setValueAtTime(400, audioCtx.currentTime);
+
+                lfo.connect(lfoGain);
+                lfoGain.connect(filter.frequency);
+                noise.connect(filter);
+                filter.connect(gainNode);
+
+                lfo.start();
+                noise.start();
+                currentNoiseNode = noise;
+
+            } else if (type === 'fire') {
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = (Math.random() * 2 - 1) * 0.08;
+                }
+                const noise = audioCtx.createBufferSource();
+                noise.buffer = buffer;
+                noise.loop = true;
+
+                const filter = audioCtx.createBiquadFilter();
+                filter.type = 'bandpass';
+                filter.frequency.setValueAtTime(500, audioCtx.currentTime);
+
+                noise.connect(filter);
+                filter.connect(gainNode);
+                noise.start();
+                currentNoiseNode = noise;
+
+            } else if (type === 'birds') {
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = (Math.random() * 2 - 1) * 0.01;
+                }
+                const noise = audioCtx.createBufferSource();
+                noise.buffer = buffer;
+                noise.loop = true;
+                noise.connect(gainNode);
+                noise.start();
+                currentNoiseNode = noise;
+
+                birdsInterval = setInterval(() => {
+                    if (!isPlaying) return;
+                    playChirp();
+                }, 2500);
+
+            } else if (type === 'bowl') {
+                const osc = audioCtx.createOscillator();
+                const osc2 = audioCtx.createOscillator();
+                
+                osc.type = 'sine';
+                osc2.type = 'sine';
+                
+                osc.frequency.setValueAtTime(216, audioCtx.currentTime);
+                osc2.frequency.setValueAtTime(218.5, audioCtx.currentTime);
+
+                osc.connect(gainNode);
+                osc2.connect(gainNode);
+
+                osc.start();
+                osc2.start();
+                currentNoiseNode = osc;
+            }
+        }
+
+        function playChirp() {
+            if (!audioCtx || !isPlaying) return;
+            const osc = audioCtx.createOscillator();
+            const chirpGain = audioCtx.createGain();
+            
+            const startFreq = 2000 + Math.random() * 1500;
+            const now = audioCtx.currentTime;
+
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(startFreq, now);
+            osc.frequency.exponentialRampToValueAtTime(startFreq + 800, now + 0.08);
+            osc.frequency.exponentialRampToValueAtTime(startFreq - 400, now + 0.15);
+
+            chirpGain.gain.setValueAtTime(0.01, now);
+            chirpGain.gain.linearRampToValueAtTime(0.15 * volumeSlider.value, now + 0.05);
+            chirpGain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+
+            osc.connect(chirpGain);
+            chirpGain.connect(audioCtx.destination);
+
+            osc.start(now);
+            osc.stop(now + 0.22);
+        }
+
+        /* -------------------------------------------------------------
+           2. 休憩時間タイマー
+        ------------------------------------------------------------- */
+        let timerInterval = null;
+        let totalSeconds = 0;
+        let remainingSeconds = 0;
+        let isTimerRunning = false;
+
+        const timerDisplay = document.getElementById('timer-display');
+        const timerStartBtn = document.getElementById('timer-start-btn');
+
+        function updateDisplay() {
+            const mins = Math.floor(remainingSeconds / 60);
+            const secs = remainingSeconds % 60;
+            timerDisplay.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+        function setTimer(minutes) {
+            pauseTimer();
+            totalSeconds = minutes * 60;
+            remainingSeconds = totalSeconds;
+            document.getElementById('custom-time').value = "";
+            updateDisplay();
+        }
+
+        function setCustomTimer(minutes) {
+            if (!minutes) return;
+            setTimer(parseInt(minutes));
+        }
+
+        function toggleTimer() {
+            if (remainingSeconds <= 0) return;
+            if (isTimerRunning) {
+                pauseTimer();
+            } else {
+                startTimer();
+            }
+        }
+
+        function startTimer() {
+            if (isTimerRunning || remainingSeconds <= 0) return;
+            isTimerRunning = true;
+            timerStartBtn.innerHTML = `<i class="fa-solid fa-pause text-xs"></i> 一時停止`;
+            timerStartBtn.classList.replace('bg-teal-700', 'bg-amber-600');
+            timerStartBtn.classList.replace('hover:bg-teal-800', 'hover:bg-amber-700');
+
+            timerInterval = setInterval(() => {
+                remainingSeconds--;
+                updateDisplay();
+
+                if (remainingSeconds <= 0) {
+                    pauseTimer();
+                    playTimerAlarm();
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            isTimerRunning = false;
+            clearInterval(timerInterval);
+            timerStartBtn.innerHTML = `<i class="fa-solid fa-play text-xs"></i> スタート`;
+            timerStartBtn.classList.replace('bg-amber-600', 'bg-teal-700');
+            timerStartBtn.classList.replace('hover:bg-amber-700', 'hover:bg-teal-800');
+        }
+
+        function resetTimer() {
+            pauseTimer();
+            remainingSeconds = totalSeconds;
+            updateDisplay();
+        }
+
+        function playTimerAlarm() {
+            initAudio();
+            const now = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(523.25, now);
+            osc.frequency.setValueAtTime(659.25, now + 0.3);
+            osc.frequency.setValueAtTime(783.99, now + 0.6);
+
+            g.gain.setValueAtTime(0.3, now);
+            g.gain.exponentialRampToValueAtTime(0.001, now + 2.0);
+
+            osc.connect(g);
+            g.connect(audioCtx.destination);
+
+            osc.start(now);
+            osc.stop(now + 2.0);
+        }
+
+        /* -------------------------------------------------------------
+           3. イライラ消去MEMO
+        ------------------------------------------------------------- */
+        function purgeMemo() {
+            const memoInput = document.getElementById('memo-input');
+            const memoWrapper = document.getElementById('memo-wrapper');
+
+            if (!memoInput.value.trim()) {
+                return;
+            }
+
+            const clone = memoInput.cloneNode(true);
+            clone.style.position = 'absolute';
+            clone.style.top = '0';
+            clone.style.left = '0';
+            clone.style.width = '100%';
+            clone.style.height = '100%';
+            clone.classList.add('burn-anim');
+            
+            memoWrapper.appendChild(clone);
+            memoInput.value = '';
+
+            setTimeout(() => {
+                clone.remove();
+            }, 1200);
+        }
+
+        window.onload = () => {
+            setTimer(3);
+        };
+    </script>
+</body>
+</html>
