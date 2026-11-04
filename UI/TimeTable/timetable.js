@@ -38,6 +38,8 @@ let patterns = [];          // 時間割 [{ id, name: '1Q', courses: [...] }, ..
 let activeId;               // 表示中の時間割の ID
 let draft;                  // 登録・編集フォームの下書き
 let viewing;                // 詳細表示中の講義
+let receivedMessages = [];  // APIから取得した受信一覧
+let currentPreviewContext = null; // 現在プレビュー中の { sender, qName, courses }
 const selected = new Set(); // 削除モードで選択中の講義 ID
 const current = () => patterns.find(p => p.id === activeId);
 const courses = () => current().courses;
@@ -182,7 +184,7 @@ document.addEventListener('click', e => {
   if (e.target.classList.contains('modal-overlay')) closeModal(e.target.id);
 });
 /* ===== 講義の登録・編集フォーム ===== */
-/** 曜日・時限のプルダウン(2行以上あるときは「×」で行を消せる) */
+/** 曜日・時限のプルダウン(.slot-row 内) */
 function renderSlots() {
   const dayOptions = slot => DAYS
     .map(d => `<option${d === slot.day ? ' selected' : ''}>${d}</option>`)
@@ -232,12 +234,6 @@ function openForm(c, day = DAYS[0], period = 1) {
   renderColors();
   openModal('overlay');
 }
-/**
- * フォームを保存する
- *  - 講義名は必須
- *  - 複数コマは1コマずつ別の講義として保存(編集時は先頭のコマが元の講義)
- *  - 同じコマに既にある講義は上書き
- */
 function saveForm() {
   const name = $('fName').value.trim();
   if (!name) {
@@ -250,9 +246,7 @@ function saveForm() {
     room: $('fRoom').value.trim(),
     colorIdx: draft.colorIdx,
   };
-  // 同じコマの重複を除く
   const slots = [...new Map(draft.slots.map(s => [s.day + s.period, s])).values()];
-  // 編集中の講義自身と、これから上書きするコマの講義を取り除く
   const rest = courses().filter(
     c => c.id !== draft.id && !slots.some(s => s.day === c.day && s.period === c.period)
   );
@@ -285,6 +279,177 @@ function editViewing() {
 function deleteViewing() {
   if (confirm(`「${viewing.name}」を削除しますか?`)) deleteCourses([viewing.id], 'viewOverlay');
 }
+
+/* ========================================== */
+/* ===== PHP API 連携: 送受信・上書き機能 ===== */
+/* ========================================== */
+
+function openSendModal() {
+  setVisible('sendSenderError', false);
+  openModal('sendOverlay');
+}
+
+async function executeSend() {
+  const sender = $('sendSenderName').value.trim();
+  if (!sender) {
+    setVisible('sendSenderError', true);
+    return;
+  }
+
+  const selectedQs = Array.from(document.querySelectorAll('input[name="sendQ"]:checked')).map(el => el.value);
+  if (selectedQs.length === 0) {
+    alert('送信するQを1つ以上選択してください。');
+    return;
+  }
+
+  const sendData = patterns
+    .filter(p => selectedQs.includes(p.name))
+    .map(p => ({ name: p.name, courses: p.courses }));
+
+  try {
+    const res = await fetch('timetable.php?action=send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sender, data: sendData })
+    });
+    const result = await res.json();
+    if (result.success) {
+      alert(`${selectedQs.join(', ')} の時間割を送信しました。`);
+      closeModal('sendOverlay');
+    } else {
+      alert(result.error || '送信に失敗しました。');
+    }
+  } catch (e) {
+    alert('通信エラーが発生しました。PHPサーバーの起動状況を確認してください。');
+  }
+}
+
+async function openReceiveModal() {
+  openModal('receiveOverlay');
+  $('receiveModalTitle').textContent = '受信中...';
+  $('receiveContent').innerHTML = '<p style="padding:16px;">データを読み込んでいます...</p>';
+  $('overwriteBtn').style.display = 'none';
+
+  try {
+    const res = await fetch('api.php?action=receive');
+    receivedMessages = await res.json();
+    showSenderList();
+  } catch (e) {
+    $('receiveContent').innerHTML = '<p style="padding:16px; color:#B23A3A;">受信用データの取得に失敗しました。</p>';
+  }
+}
+
+/** 1. 送信者一覧を表示 */
+function showSenderList() {
+  $('receiveModalTitle').textContent = '受信した時間割';
+  $('overwriteBtn').style.display = 'none';
+  currentPreviewContext = null;
+
+  if (!receivedMessages.length) {
+    $('receiveContent').innerHTML = '<p style="padding:16px;">受信したデータはありません。</p>';
+    return;
+  }
+
+  const listHtml = receivedMessages.map((msg, index) => `
+    <div class="receive-item" onclick="showQList(${index})">
+      <div class="receive-sender">👤 ${esc(msg.sender)}</div>
+      <div class="receive-date">${esc(msg.date)}</div>
+    </div>
+  `).join('');
+
+  $('receiveContent').innerHTML = `<div class="receive-list">${listHtml}</div>`;
+}
+
+/** 2. 送信されたQ一覧を表示 */
+function showQList(msgIndex) {
+  const msg = receivedMessages[msgIndex];
+  $('receiveModalTitle').textContent = `${msg.sender} さんの時間割`;
+  $('overwriteBtn').style.display = 'none';
+
+  const qHtml = msg.data.map((q, qIndex) => `
+    <div class="receive-item" onclick="showQPreview(${msgIndex}, ${qIndex})">
+      <div class="receive-sender">📅 ${esc(q.name)} の時間割 (${q.courses.length}コマ)</div>
+      <div style="font-size:12px; color:#24344D; font-weight:700;">プレビュー表示 →</div>
+    </div>
+  `).join('');
+
+  $('receiveContent').innerHTML = `
+    <button class="btn btn-ghost" style="margin-bottom:10px;" onclick="showSenderList()">← 送信者一覧に戻る</button>
+    <div class="receive-list">${qHtml}</div>
+  `;
+}
+
+/** 3. グリッドプレビュー表示 */
+function showQPreview(msgIndex, qIndex) {
+  const msg = receivedMessages[msgIndex];
+  const targetQ = msg.data[qIndex];
+
+  $('receiveModalTitle').textContent = `${msg.sender} - ${targetQ.name} プレビュー`;
+  $('overwriteBtn').style.display = 'inline-block';
+
+  currentPreviewContext = {
+    sender: msg.sender,
+    qName: targetQ.name,
+    courses: targetQ.courses
+  };
+
+  const previewCourses = targetQ.courses || [];
+  const findPreviewCourse = (day, period) => previewCourses.find(c => c.day === day && c.period === period);
+
+  const headHtml = DAYS.map(d => `<div class="p-day-head">${d}</div>`).join('');
+
+  const rowsHtml = PERIODS.map((p, r) => {
+    const zebra = r % 2 ? 'row-odd' : 'row-even';
+    const periodCell = `
+      <div class="p-period-cell ${zebra}">
+        <div class="p-label">${p.label}</div>
+      </div>`;
+
+    const dayCells = DAYS.map(day => {
+      const c = findPreviewCourse(day, p.id);
+      if (!c) return `<div class="p-cell ${zebra}"></div>`;
+
+      const bg = PALETTE[c.colorIdx] ?? PALETTE[0];
+      const name = `<div class="c-name">${esc(c.name)}</div>`;
+      const room = c.room ? `<div class="c-room">${esc(c.room)}</div>` : '';
+
+      return `<div class="p-cell ${zebra}" style="background:${bg}">${name}${room}</div>`;
+    }).join('');
+
+    return periodCell + dayCells;
+  }).join('');
+
+  const gridHtml = `
+    <button class="btn btn-ghost" style="margin-bottom:10px;" onclick="showQList(${msgIndex})">← Q一覧に戻る</button>
+    <div class="preview-grid-wrapper">
+      <div class="preview-grid">
+        <div class="corner"></div>
+        ${headHtml}
+        ${rowsHtml}
+      </div>
+    </div>
+  `;
+
+  $('receiveContent').innerHTML = gridHtml;
+}
+
+/** 上書き実行 */
+function confirmOverwrite() {
+  if (!currentPreviewContext) return;
+
+  const { qName, courses: newCourses } = currentPreviewContext;
+
+  if (confirm(`自分の 「${qName}」 の時間割を、受信した内容で上書きしますか？\n（※元の${qName}の情報は置き換わります）`)) {
+    const targetPattern = patterns.find(p => p.name === qName);
+    if (targetPattern) {
+      targetPattern.courses = JSON.parse(JSON.stringify(newCourses));
+      update();
+      alert(`「${qName}」 の時間割を上書きしました。`);
+      closeModal('receiveOverlay');
+    }
+  }
+}
+
 /* ===== 起動 ===== */
 load();
 render();
