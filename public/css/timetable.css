@@ -1,0 +1,634 @@
+/* timetable.html 専用スタイル(body.timetable 配下のみに適用) */
+
+/* 共通・ヘッダー・ボタン */
+.timetable,
+.timetable * {
+  box-sizing: border-box;
+}
+
+body.timetable {
+  margin: 0;
+  font-family: 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', sans-serif;
+  background: #FAF7EF;
+  color: #2E2C27;
+  padding: clamp(8px, 2.5vh, 24px) clamp(8px, 2.5vw, 20px);
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.timetable button,
+.timetable select,
+.timetable input {
+  font-family: inherit;
+}
+
+.timetable .wrap {
+  max-width: 980px;
+  margin: 0 auto;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.timetable header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: clamp(6px, 2vh, 24px);
+  flex-wrap: nowrap;
+  gap: 6px 12px;
+}
+
+.timetable h1,
+.timetable h2,
+.timetable .day-head,
+.timetable .view-course-name {
+  font-family: 'Shippori Mincho', serif;
+  color: #24344D;
+}
+
+.timetable h1 {
+  font-size: clamp(26px, 5.5vh, 44px);
+  margin: 0;
+  letter-spacing: .02em;
+}
+
+.timetable h2 {
+  font-size: 18px;
+  margin: 0 0 16px;
+}
+
+.timetable .header-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+.timetable .btn-mode-select {
+  background: #fff;
+  color: #24344D;
+  border: 1px solid #24344D;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  padding: 0 clamp(10px, 2.5vw, 14px);
+  font-size: clamp(13px, 2.4vh, 16px);
+  height: clamp(34px, 6.5vh, 44px);
+  line-height: 1;
+}
+
+.timetable .btn-mode-select:hover {
+  background: #EFEADD;
+}
+
+/* 時間割の表 */
+
+.timetable .grid-stage {
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+  flex: 1;
+  min-height: 0;
+  max-height: 640px;
+}
+
+.timetable .grid-scroll {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  display: flex;
+}
+
+.timetable .nav-arrow {
+  flex: 0 0 auto;
+  align-self: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(26px, 8vw, 36px);
+  height: clamp(26px, 8vw, 36px);
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: #24344D;
+  color: #FAF7EF;
+  font-size: clamp(14px, 3vh, 20px);
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.timetable .nav-arrow:disabled {
+  opacity: .3;
+  cursor: default;
+}
+
+.timetable #saveError {
+  display: none;
+  background: #FBEAEA;
+  color: #8C2E2E;
+  font-size: 13px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+}
+
+.timetable .grid {
+  border: 1px solid #24344D;
+  border-radius: 4px;
+  background: #fff;
+  display: grid;
+  grid-template-columns: clamp(46px, 13vw, 88px) repeat(6, minmax(0, 1fr));
+  grid-template-rows: auto repeat(6, minmax(0, 1fr));
+  flex: 1;
+  min-width: 0;
+}
+
+.timetable .corner,
+.timetable .day-head {
+  background: #EFEADD;
+  border-bottom: 1px solid #24344D;
+}
+
+.timetable .corner {
+  border-right: 1px solid #24344D;
+}
+
+.timetable .day-head {
+  border-right: 1px solid #d8d3c4;
+  text-align: center;
+  padding: 10px 4px;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.timetable .day-head:last-child,
+.timetable .cell:nth-child(7n) {
+  border-right: 1px solid #24344D;
+}
+
+.timetable .day-head.today {
+  background: #24344D;
+  color: #FAF7EF;
+}
+
+.timetable .period-cell {
+  border-bottom: 1px solid #d8d3c4;
+  border-right: 1px solid #24344D;
+  padding: clamp(2px, .8vh, 10px) clamp(2px, .8vw, 8px);
+  font-size: 12px;
+  color: #5C594E;
+  background: #F5F1E6;
+  overflow: hidden;
+}
+
+.timetable .p-label {
+  font-weight: 700;
+  font-size: clamp(9px, min(1.8vw, 2vh), 13px);
+  color: #24344D;
+}
+
+.timetable .p-time {
+  margin-top: 2px;
+  white-space: nowrap;
+  font-size: clamp(6px, min(1.5vw, 1.6vh), 11px);
+}
+
+.timetable .row-even {
+  background: #F5F1E6;
+}
+
+.timetable .row-odd {
+  background: #EDE8DA;
+}
+
+/* コマ:3行表示(1〜2行目=講義名、3行目=場所) */
+
+.timetable .cell {
+  border-bottom: 1px solid #d8d3c4;
+  border-right: 1px solid #d8d3c4;
+  min-height: 0;
+  padding: clamp(2px, .8vh, 8px) clamp(2px, .6vw, 8px);
+  cursor: pointer;
+  transition: filter .15s;
+  -webkit-tap-highlight-color: transparent;
+  overflow: hidden;
+
+  /* マス自身の大きさを基準に、中の文字サイズを決める(cqh / cqw の基準になる) */
+  container-type: size;
+}
+
+.timetable .cell:active {
+  filter: brightness(.93);
+}
+
+/* 1〜2行目:講義名(最大2行)。1行だけの名前でも2行分の高さを確保して、場所を必ず3行目に置く */
+.timetable .c-name {
+  font-size: clamp(6px, min(26cqh, 18cqw), 14px);
+  font-weight: 700;
+  line-height: 1.2;
+  min-height: 2.4em; /* 1.2 × 2行 */
+  word-break: break-word;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* 3行目:場所(1行、はみ出したら省略) */
+.timetable .c-room {
+  font-size: clamp(6px, min(26cqh, 18cqw), 14px);
+  line-height: 1.2;
+  opacity: .85;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 削除モード */
+
+/* ヘッダーの削除ボタン(削除モードのときだけ表示)。未選択のときは説明文として表示 */
+.timetable .btn.delete-btn {
+  display: none;
+  flex: 0 1 auto;
+  margin-left: auto;
+  min-width: 0;
+  min-height: clamp(34px, 6.5vh, 44px);
+  padding: 4px 8px;
+  border: none;
+  border-radius: 6px;
+  background: #B23A3A;
+  color: #fff;
+  font-size: clamp(9px, 2.2vh, 13px);
+  font-weight: 700;
+  line-height: 1.3;
+  text-align: center;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+.timetable .btn.delete-btn:disabled {
+  background: #F3D3D3;
+  color: #7A2B2B;
+  font-weight: 400;
+  opacity: 1;
+  cursor: default;
+}
+
+body.timetable.delete-mode .delete-btn {
+  display: block;
+}
+
+.timetable .btn:disabled {
+  opacity: .5;
+  cursor: default;
+}
+
+.timetable .cell.selected-for-delete {
+  position: relative;
+  outline: 3px solid #B23A3A;
+  outline-offset: -3px;
+}
+
+.timetable .cell.selected-for-delete::after {
+  content: "✓";
+  position: absolute;
+  top: 3px;
+  right: 4px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #B23A3A;
+  color: #fff;
+  font-size: 11px;
+  line-height: 16px;
+  text-align: center;
+}
+
+/* モーダル */
+
+.timetable .modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(30, 28, 22, .4);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: 16px;
+}
+
+.timetable .modal-overlay.open {
+  display: flex;
+}
+
+.timetable .modal {
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+  background: #FAF7EF;
+  border-radius: 8px;
+  padding: 24px;
+  width: 400px;
+  max-width: 100%;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, .2);
+}
+
+.timetable .modal.lg {
+  width: 520px;
+  padding: 28px 24px;
+}
+
+.timetable .view-course-name {
+  font-size: 30px;
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+
+.timetable .view-course-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.timetable .view-meta-row {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  font-size: 20px;
+}
+
+.timetable .view-meta-label {
+  flex: 0 0 60px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #8A8676;
+}
+
+.timetable .field {
+  font-size: 12px;
+  color: #5C594E;
+  display: block;
+  margin-bottom: 12px;
+}
+
+/* 曜日・時限のプルダウン(.slot-row 内)も .field の中にあるので、ここで共通に指定される */
+.timetable .field select,
+.timetable .field input {
+  width: 100%;
+  margin-top: 4px;
+  padding: 9px 10px;
+  border-radius: 6px;
+  border: 1px solid #cfc9b8;
+  font-size: 14px;
+  background: #fff;
+}
+
+.timetable .form-error {
+  color: #B23A3A;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.timetable .slots-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.timetable .slots-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.timetable .slot-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.timetable .slot-row select {
+  flex: 1;
+  min-width: 0;
+}
+
+.timetable .removeSlotBtn {
+  flex: 0 0 30px;
+  height: 30px;
+  border-radius: 6px;
+  border: 1px solid #cfc9b8;
+  background: #fff;
+  color: #8A8676;
+  cursor: pointer;
+}
+
+.timetable .btn-link {
+  background: none;
+  border: none;
+  color: #24344D;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 2px 0;
+}
+
+.timetable .color-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.timetable .swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid #cfc9b8;
+  cursor: pointer;
+}
+
+.timetable .swatch.selected {
+  border: 2px solid #24344D;
+}
+
+.timetable .modal-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.timetable .btn {
+  border-radius: 6px;
+  padding: 9px 14px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.timetable .btn-ghost {
+  background: none;
+  border: 1px solid #cfc9b8;
+  color: #5C594E;
+}
+
+.timetable .btn-danger {
+  background: none;
+  border: 1px solid #C97B7B;
+  color: #B23A3A;
+}
+
+.timetable .btn-primary {
+  background: #24344D;
+  border: none;
+  color: #FAF7EF;
+  font-weight: 500;
+  padding: 9px 16px;
+}
+
+/* スマホ向け(画面幅640px以下)。表・見出しの大きさは上の clamp() で画面サイズに合わせて自動調整 */
+@media(max-width:640px) {
+  .timetable .modal {
+    width: 100%;
+    padding: 20px;
+  }
+
+  .timetable .field select,
+  .timetable .field input {
+    padding: 10px;
+    font-size: 16px;
+  }
+
+  .timetable .removeSlotBtn {
+    flex-basis: 34px;
+    height: 34px;
+  }
+
+  .timetable .swatch {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+/* ========================================== */
+/* 追加: 送信・受信機能用スタイル */
+/* ========================================== */
+
+.timetable .send-q-options {
+  display: flex;
+  gap: 16px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #24344D;
+}
+
+.timetable .send-q-options label {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.timetable .receive-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.timetable .receive-item {
+  padding: 12px 16px;
+  background: #fff;
+  border: 1px solid #cfc9b8;
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.timetable .receive-item:hover {
+  background: #EFEADD;
+}
+
+.timetable .receive-sender {
+  font-weight: 700;
+  color: #24344D;
+}
+
+.timetable .receive-date {
+  font-size: 12px;
+  color: #8A8676;
+}
+
+/* 受信時の時間割プレビュー用グリッド */
+.timetable .preview-grid-wrapper {
+  width: 100%;
+  max-height: 360px;
+  overflow: auto;
+  border: 1px solid #24344D;
+  border-radius: 4px;
+  background: #fff;
+}
+
+.timetable .preview-grid {
+  display: grid;
+  grid-template-columns: 50px repeat(6, minmax(70px, 1fr));
+  grid-auto-rows: minmax(46px, auto);
+  gap: 1px;
+  background: #d8d3c4;
+  font-size: 11px;
+  min-width: 480px;
+}
+
+.timetable .preview-grid .corner {
+  background: #24344D;
+}
+
+.timetable .p-day-head {
+  background: #24344D;
+  color: #FAF7EF;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.timetable .p-period-cell {
+  background: #F5F1E6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: #24344D;
+}
+
+.timetable .p-cell {
+  background: #fff;
+  padding: 4px 2px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  word-break: break-all;
+}
+
+.timetable .p-cell .c-name {
+  font-weight: 700;
+  line-height: 1.2;
+  color: #2E2C27;
+}
+
+.timetable .p-cell .c-room {
+  font-size: 10px;
+  color: #5C594E;
+  margin-top: 2px;
+}

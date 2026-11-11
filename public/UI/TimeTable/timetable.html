@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>時間割</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Shippori+Mincho:wght@500;700&display=swap" />
+  <link rel="stylesheet" href="../../css/timetable.css" />
+</head>
+
+<body class="timetable">
+  <div class="wrap">
+
+    <!-- ヘッダー -->
+    <header>
+      <h1 id="appTitle">時間割</h1>
+
+      <button class="btn btn-danger delete-btn" id="deleteConfirmBtn" onclick="deleteSelected()" disabled>
+        講義をタップして<wbr>削除する
+      </button>
+
+      <div class="header-actions">
+        <button class="btn btn-ghost" onclick="openSendModal()">送信</button>
+        <button class="btn btn-primary" onclick="openReceiveModal()">受信</button>
+        <select class="btn-mode-select" aria-label="モード選択" onchange="setMode(this.value)">
+          <option value="view">講義確認・登録</option>
+          <option value="delete">講義削除</option>
+        </select>
+      </div>
+    </header>
+
+    <div id="saveError">保存に失敗しました。もう一度お試しください。</div>
+    
+
+    <!-- 時間割の表 -->
+    <div class="grid-stage">
+      <button class="nav-arrow" id="prevBtn" aria-label="前の時間割" onclick="step(-1)">&lt;</button>
+      <div class="grid-scroll" id="gridScroll">
+      </div>
+      <button class="nav-arrow" id="nextBtn" aria-label="次の時間割" onclick="step(1)">&gt;</button>
+    </div>
+
+  </div>
+
+  <!-- 講義の登録・編集 -->
+  <div class="modal-overlay" id="overlay">
+    <div class="modal">
+      <h2 id="modalTitle">講義を登録</h2>
+
+      <div class="field">
+        <div class="slots-head">
+          <span>曜日・時限</span>
+          <button class="btn-link" onclick="addSlot()">＋ コマを追加</button>
+        </div>
+        <div class="slots-list" id="slotsList"></div>
+      </div>
+
+      <label class="field">講義名
+        <input id="fName" placeholder="講義" />
+        <div class="form-error" id="fNameError" style="display:none">講義名を入力してください</div>
+      </label>
+
+      <label class="field">講師名
+        <input id="fTeacher" placeholder="講師" />
+      </label>
+
+      <label class="field">場所
+        <input id="fRoom" placeholder="場所" />
+      </label>
+
+      <div class="field">色
+        <div class="color-row" id="colorRow"></div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-danger" id="deleteBtn" onclick="deleteFromForm()">削除</button>
+        <div style="display:flex; gap:8px">
+          <button class="btn btn-ghost" onclick="closeModal('overlay')">キャンセル</button>
+          <button class="btn btn-primary" onclick="saveForm()">保存</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 講義の詳細 -->
+  <div class="modal-overlay" id="viewOverlay">
+    <div class="modal lg">
+      <div class="view-course-name" id="viewName"></div>
+
+      <div class="view-course-meta">
+        <div class="view-meta-row"><span class="view-meta-label">講師</span><span id="viewTeacher"></span></div>
+        <div class="view-meta-row"><span class="view-meta-label">場所</span><span id="viewRoom"></span></div>
+        <div class="view-meta-row"><span class="view-meta-label">時間</span><span id="viewTime"></span></div>
+      </div>
+
+      <div class="modal-actions" style="margin-top:18px">
+        <button class="btn btn-danger" onclick="deleteViewing()">講義削除</button>
+        <div style="display:flex; gap:8px">
+          <button class="btn btn-ghost" onclick="closeModal('viewOverlay')">閉じる</button>
+          <button class="btn btn-primary" onclick="editViewing()">講義編集</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 送信モーダル -->
+  <div class="modal-overlay" id="sendOverlay">
+    <div class="modal">
+      <h2>時間割を送信</h2>
+      
+      <label class="field">あなたの名前（送信者名）
+        <input id="sendSenderName" placeholder="山田 太郎" />
+        <div class="form-error" id="sendSenderError" style="display:none">名前を入力してください</div>
+      </label>
+
+      <div class="field">
+        <span>送信するクォーターを選択</span>
+        <div class="send-q-options" style="margin-top:8px;">
+          <label><input type="checkbox" name="sendQ" value="1Q" checked> 1Q</label>
+          <label><input type="checkbox" name="sendQ" value="2Q"> 2Q</label>
+          <label><input type="checkbox" name="sendQ" value="3Q"> 3Q</label>
+          <label><input type="checkbox" name="sendQ" value="4Q"> 4Q</label>
+        </div>
+      </div>
+
+      <div class="modal-actions" style="margin-top:20px;">
+        <button class="btn btn-ghost" onclick="closeModal('sendOverlay')">キャンセル</button>
+        <button class="btn btn-primary" onclick="executeSend()">送信する</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 受信モーダル -->
+  <div class="modal-overlay" id="receiveOverlay">
+    <div class="modal lg">
+      <h2 id="receiveModalTitle">受信した時間割</h2>
+      
+      <div id="receiveContent"></div>
+
+      <div class="modal-actions" style="margin-top:18px;">
+        <button class="btn btn-ghost" onclick="closeModal('receiveOverlay')">閉じる</button>
+        <button class="btn btn-primary" id="overwriteBtn" style="display:none;" onclick="confirmOverwrite()">このQを上書き</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="timetable.js"></script>
+</body>
+</html>
