@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 // すべてのPHPページの先頭で読み込む共通処理
@@ -23,7 +24,7 @@ function start_session(): void
     session_start();
 }
 
-// 想定外のエラーは内容を画面に出さず、サーバーのログにだけ残す
+// 想定外のエラーは内容を画面に出さず、サーバーのログに出力する。
 set_exception_handler(function (Throwable $e): void {
     error_log((string) $e);
     http_response_code(500);

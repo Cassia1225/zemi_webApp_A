@@ -1,11 +1,12 @@
 <?php
+
 declare(strict_types=1);
 
 // 登録・ログイン・トークン処理の共通部分
 
 const VERIFY_TOKEN_HOURS = 24;
 const RESET_TOKEN_MINUTES = 30;
-const PASSWORD_MIN_LENGTH = 8;
+const PASSWORD_MIN_LENGTH = 8; #パスワード最小の長さ８文字
 const PASSWORD_MAX_BYTES = 72; // bcryptは72バイトより後を無視するため
 
 // 存在しないメールでも同じ時間がかかるよう照合に使う、誰のものでもないハッシュ
@@ -65,8 +66,10 @@ function current_user(): ?array
     $row = $stmt->fetch();
 
     // パスワード再設定後の古いログインや、削除済みアカウントを通さない
-    if (!$row || $row['email_verified_at'] === null
-        || (int) $row['session_version'] !== ($_SESSION['session_version'] ?? -1)) {
+    if (
+        !$row || $row['email_verified_at'] === null
+        || (int) $row['session_version'] !== ($_SESSION['session_version'] ?? -1)
+    ) {
         logout_user();
         return null;
     }
@@ -144,7 +147,7 @@ function send_verification_mail(array $user, string $passwordHash): bool
         $user['email'],
         '【学生サポートアプリ】メールアドレスの確認',
         "下のリンクを開いて、メールアドレスの確認を完了してください。\n\n{$url}\n\n"
-        . 'リンクの有効期限は' . VERIFY_TOKEN_HOURS . "時間です。\n心当たりがない場合は、このメールを無視してください。"
+            . 'リンクの有効期限は' . VERIFY_TOKEN_HOURS . "時間です。\n心当たりがない場合は、このメールを無視してください。"
     );
 }
 
@@ -164,7 +167,7 @@ function send_reset_mail(array $user): bool
         $user['email'],
         '【学生サポートアプリ】パスワードの再設定',
         "下のリンクから新しいパスワードを設定してください。\n\n{$url}\n\n"
-        . 'リンクの有効期限は' . RESET_TOKEN_MINUTES . "分です。\n心当たりがない場合は、このメールを無視してください。"
+            . 'リンクの有効期限は' . RESET_TOKEN_MINUTES . "分です。\n心当たりがない場合は、このメールを無視してください。"
     );
 }
 
@@ -186,6 +189,7 @@ function consume_token(string $table, string $token): ?array
          WHERE token_hash = ? AND used_at IS NULL AND expires_at > now()
          RETURNING *"
     );
+    #token_hasでbcryptによるハッシュ化。72バイトまでの制限が必要になるよねぇ
     $stmt->execute([token_hash($token)]);
     return $stmt->fetch() ?: null;
 }
