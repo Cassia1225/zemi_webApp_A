@@ -521,21 +521,6 @@ body.timetable.delete-mode .delete-btn {
 /* 追加: 送信・受信機能用スタイル */
 /* ========================================== */
 
-.timetable .send-q-options {
-  display: flex;
-  gap: 16px;
-  font-size: 14px;
-  font-weight: 700;
-  color: #24344D;
-}
-
-.timetable .send-q-options label {
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
 .timetable .receive-list {
   display: flex;
   flex-direction: column;
@@ -631,4 +616,154 @@ body.timetable.delete-mode .delete-btn {
   font-size: 10px;
   color: #5C594E;
   margin-top: 2px;
+}
+
+/* ========================================== */
+/* 追加: 開講期間・Qのチップ / 送信・受信モーダル */
+/* ========================================== */
+
+.timetable .chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 6px;
+}
+
+.timetable .chip {
+  min-width: 56px; /* 選択時に太字にしても幅が変わらず、並びがずれないようにする */
+  padding: 6px 0;
+  text-align: center;
+  border-radius: 999px;
+  border: 1px solid #cfc9b8;
+  background: #fff;
+  color: #5C594E;
+  font-size: 13px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.timetable .chip.on {
+  background: #24344D;
+  border-color: #24344D;
+  color: #FAF7EF;
+}
+
+/* 送信/受信のタブ */
+.timetable .tab-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 18px;
+}
+
+.timetable .tab-btn {
+  flex: 1;
+  padding: 10px 4px;
+  border: 1px solid #cfc9b8;
+  border-radius: 6px;
+  background: none;
+  color: #5C594E;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.timetable .tab-btn.on {
+  background: #24344D;
+  border-color: #24344D;
+  color: #FAF7EF;
+  font-weight: 700;
+}
+
+.timetable .share-id-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.timetable .share-my-id {
+  flex: 1;
+  font: 700 20px/1 ui-monospace, Menlo, monospace;
+  letter-spacing: .08em;
+  color: #24344D;
+}
+
+/* ユーザ一覧ボタン・選んだ送信先 */
+.timetable .contact-btn {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.timetable .tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 4px 4px 12px;
+  border-radius: 999px;
+  background: #EFEADD;
+  color: #24344D;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.timetable .tag button {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  color: #8A8676;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* ユーザ一覧モーダルの行(チェックボックス + 名前) */
+.timetable .contact {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  background: #fff;
+  border: 1px solid #cfc9b8;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.timetable .contact input {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+}
+
+.timetable .contact-name {
+  flex: 1;
+  min-width: 0;
+}
+
+.timetable .send-msg {
+  font-size: 13px;
+  min-height: 1.4em;
+  margin-bottom: 8px;
+}
+
+.timetable .send-msg.ok {
+  color: #3B7A57;
+}
+
+.timetable .send-msg.err {
+  color: #B23A3A;
+}
+
+.timetable .share-empty {
+  color: #8A8676;
+  font-size: 13px;
+  margin: 8px 0;
+}
+
+.timetable .share-empty.error {
+  color: #B23A3A;
 }
