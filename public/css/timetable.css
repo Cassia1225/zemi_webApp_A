@@ -494,6 +494,14 @@ body.timetable.delete-mode .delete-btn {
   margin-top: 4px;
 }
 
+/* 同名の講義にも変更が反映されることの注意書き */
+.timetable .sync-note {
+  color: #5C594E;
+  font-size: 12px;
+  line-height: 1.5;
+  margin-top: 4px;
+}
+
 .timetable .slots-head {
   display: flex;
   justify-content: space-between;
