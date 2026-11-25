@@ -4,7 +4,7 @@ header('Content-Type: application/json; charset=utf-8');
 // ===== 送信/受信(ユーザIDで相手を指定して送る) =====
 // data/exchange.json の形:
 // { names: { "U-AAAAAA": "山田 太郎" },
-//   inbox: { "U-宛先": { "U-送信者": { ts, date, data: [{ year:2026, name:'1Q', courses:[...] }] } } } }
+//   inbox: { "U-宛先": { "U-送信者": { ts, date, data: [{ year:2026, yearName:'', name:'1Q', courses:[...] }] } } } }
 // ※ユーザIDは仮実装。ログイン機能ができたら $me を認証済みIDに置き換える
 
 const Q_NAMES = ['1Q', '2Q', '3Q', '4Q'];
@@ -76,7 +76,8 @@ function cleanData($data) {
                 'colorIdx' => (int)($c['colorIdx'] ?? 0),
             ];
         }
-        $out[] = ['year' => $year, 'name' => $q['name'], 'courses' => $courses];
+        $yearName = mb_substr(trim((string)($q['yearName'] ?? '')), 0, 20); // 年度の表示名(任意)
+        $out[] = ['year' => $year, 'yearName' => $yearName, 'name' => $q['name'], 'courses' => $courses];
     }
     return $out;
 }

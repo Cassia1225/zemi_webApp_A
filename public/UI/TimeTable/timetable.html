@@ -14,7 +14,11 @@
     <!-- ヘッダー -->
     <header>
       <div class="title-group">
-        <select class="btn-mode-select" id="yearSelect" aria-label="年度選択" onchange="changeYear(this.value)"></select>
+        <!-- 年度の選択メニュー(各年度の右端の ✎ で名前変更。中身は timetable.js の renderHeader が作る) -->
+        <div class="year-dd">
+          <button type="button" class="btn-mode-select year-btn" id="yearBtn" aria-label="年度選択" aria-haspopup="true" onclick="toggleYearMenu()"></button>
+          <div class="year-menu" id="yearMenu"></div>
+        </div>
         <h1 id="appTitle">時間割</h1>
       </div>
 
@@ -171,6 +175,37 @@
       <div class="modal-actions" style="margin-top:18px;">
         <button class="btn btn-ghost" onclick="closeModal('contactOverlay')">キャンセル</button>
         <button class="btn btn-primary" onclick="applyContacts()">決定</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 年度の追加(西暦を入力) -->
+  <div class="modal-overlay" id="addYearOverlay">
+    <div class="modal">
+      <h2>年度を追加</h2>
+      <label class="field">西暦(4桁)
+        <input id="addYearInput" type="text" inputmode="numeric" maxlength="4" placeholder="例 2027"
+               onkeydown="if (event.key === 'Enter') applyYearAdd()" />
+        <div class="form-error" id="addYearError" style="display:none">2000〜2100の西暦4桁で入力してください</div>
+      </label>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="closeModal('addYearOverlay')">キャンセル</button>
+        <button class="btn btn-primary" onclick="applyYearAdd()">追加</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 年度の名前変更(空にすると「2026年度」の表示に戻る) -->
+  <div class="modal-overlay" id="renameYearOverlay">
+    <div class="modal">
+      <h2>年度の名前を変更</h2>
+      <label class="field">
+        <input id="renameYearInput" maxlength="20" aria-label="年度の表示名"
+               onkeydown="if (event.key === 'Enter') applyYearRename()" />
+      </label>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="closeModal('renameYearOverlay')">キャンセル</button>
+        <button class="btn btn-primary" onclick="applyYearRename()">保存</button>
       </div>
     </div>
   </div>

@@ -94,6 +94,98 @@ body.timetable {
   background: #EFEADD;
 }
 
+/* 年度メニュー(各年度の右端に ✎ を置く独自プルダウン) */
+.timetable .year-dd {
+  position: relative;
+}
+
+.timetable .year-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 40;
+  min-width: 190px;
+  max-width: 90vw;
+  max-height: 60vh;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid #24344D;
+  border-radius: 6px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, .15);
+}
+
+.timetable .year-menu.open {
+  display: block;
+}
+
+.timetable .year-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  font-size: 14px;
+  color: #24344D;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.timetable .year-item:hover {
+  background: #EFEADD;
+}
+
+.timetable .year-item.on {
+  font-weight: 700;
+}
+
+/* 並べ替えのつまみ(≡)。touch-action:none でドラッグ中に画面がスクロールしないようにする */
+.timetable .year-handle {
+  flex: 0 0 20px;
+  text-align: center;
+  color: #8A8676;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.timetable .year-name {
+  flex: 1;
+  min-width: 0;
+}
+
+/* 追加・削除の行は、年度名の文字位置にそろえる(つまみの幅 20px + すきま 8px + 余白 12px) */
+.timetable .year-item.year-action {
+  padding-left: 40px;
+}
+
+/* ドラッグ中の行 */
+.timetable .year-item.dragging {
+  position: relative;
+  z-index: 2;
+  background: #EFEADD;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .2);
+  cursor: grabbing;
+}
+
+.timetable .year-edit {
+  flex: 0 0 auto;
+  padding: 2px 6px;
+  border: none;
+  border-radius: 4px;
+  background: none;
+  color: #8A8676;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.timetable .year-edit:hover {
+  background: #d8d3c4;
+  color: #24344D;
+}
+
+
 /* 時間割の表 */
 
 .timetable .grid-stage {
