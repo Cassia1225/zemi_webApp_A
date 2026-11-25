@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>マインドフルネス瞑想 -relax-</title>
+    <link rel="stylesheet" href="../../css/meditation.css">
+</head>
+<body>
+
+    <header>
+        <h1>マインドフルネス瞑想</h1>
+        <p class="subtitle">「今、ここ」の呼吸だけに意識を向けて頭をリセットします</p>
+    </header>
+
+    <main>
+        <!-- 1. マインドフルネス瞑想のやり方（折りたたみ式） -->
+        <section class="howto-section">
+            <details>
+                <summary>はじめての方へ：マインドフルネス瞑想のやり方（3ステップ）</summary>
+                <div class="howto-content">
+                    <ol>
+                        <li><strong>姿勢を整える：</strong>椅子に浅く腰掛け、背筋を軽く伸ばします。肩の力を抜き、手は太ももの上に楽に置きます。</li>
+                        <li><strong>呼吸を観察する：</strong>呼吸を無理にコントロールしようとせず、「空気が鼻を通る感覚」や「お腹が膨らむ感覚」をただ観察します。</li>
+                        <li><strong>雑念を手放す：</strong>作業の悩みや別の考えが浮かんでも「ダメだ」と責めず、「あ、今考え事をしていたな」と気づいて、再び呼吸に意識を戻します。</li>
+                    </ol>
+
+                    <!-- さらに詳しい解説（入れ子の折りたたみ） -->
+                    <details class="deep-dive">
+                        <summary>もっと詳しく（座り方・呼吸法の違い・コツ）</summary>
+                        <div class="deep-dive-content">
+                            <h4>1. 疲れにくく集中しやすい「正しい座り方」：基本の5つのチェックポイント</h4>
+                            <ol class="posture-list">
+                                <li>
+                                    <strong>土台を安定させる（骨盤を立てる）</strong><br>
+                                    お尻の左右にあるゴリゴリした骨（坐骨）に均等に体重を乗せ、骨盤を垂直に立てます。土台が安定すると、上半身に余計な力が入らなくなります。
+                                </li>
+                                <li>
+                                    <strong>背骨を自然に伸ばす</strong><br>
+                                    頭のてっぺんが天井から細い糸で軽く引っ張られているようなイメージで、背筋をスッと伸ばします（腰を反らしすぎないよう注意します）。
+                                </li>
+                                <li>
+                                    <strong>肩と腕の力を抜く</strong><br>
+                                    肩を一度耳の方へギュッとすくめてから、息を吐きながらストンと下ろします。手は太ももの上（手のひらは上向きでも下向きでもOK）か、おへその前で軽く重ねます。
+                                </li>
+                                <li>
+                                    <strong>顎（あご）を軽く引く</strong><br>
+                                    顔が上を向いたり下を向きすぎたりしないよう、顎を軽く引いて首の後ろをまっすぐに保ちます。
+                                </li>
+                                <li>
+                                    <strong>視線を落ち着かせる</strong><br>
+                                    目を閉じるか、半眼にして斜め下1〜2メートル先の一点に視線を軽く置きます。
+                                </li>
+                            </ol>
+
+                            <h4>2. ガイドモード（3つの呼吸法）の使い分け</h4>
+                            <ul>
+                                <li><strong>マインドフルネス瞑想（自然な呼吸）：</strong>秒数に縛られず、今の自分の自然な呼吸のペースを観察します。頭の中のモヤモヤを客観視したいときに最適です。</li>
+                                <li><strong>ボックス呼吸（4秒吸う・4秒止める・4秒吐く・4秒止める）：</strong>「吸う・止める・吐く・止める」を同じ長さで繰り返す呼吸法です。焦りやプレッシャーで乱れた自律神経をフラットに整え、集中力を取り戻したいときに向いています。</li>
+                                <li><strong>リラックス呼吸（4秒吸う・7秒止める・8秒吐く）：</strong>「4-7-8呼吸法」と呼ばれ、吸う時間の倍かけてゆっくり息を吐き切ることで副交感神経を優位にします。強い緊張やイライラを鎮めたいときに効果的です。</li>
+                            </ul>
+
+                            <h4>3. 「無にならなきゃ」と思わなくて大丈夫</h4>
+                            <p>瞑想中に考え事が浮かぶのは脳の自然な働きであり、失敗ではありません。「あ、今別のことを考えていた」と<strong>気づいて呼吸に意識を戻す瞬間</strong>こそが、脳の切り替えトレーニングになります。</p>
+                        </div>
+                    </details>
+                </div>
+            </details>
+        </section>
+
+        <hr>
+
+        <!-- 2. 設定エリア -->
+        <section class="controls">
+            <div class="control-group">
+                <label for="breathing-mode">ガイドモード：</label>
+                <select id="breathing-mode">
+                    <option value="mindfulness">マインドフルネス瞑想（自然な呼吸＋意識のガイド）</option>
+                    <option value="box">ボックス呼吸（4秒吸う・4秒止める・4秒吐く・4秒止める）</option>
+                    <option value="478">リラックス呼吸（4秒吸う・7秒止める・8秒吐く）</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <span>時間：</span>
+                <button type="button" class="time-btn active" onclick="setDuration(1, this)">1分</button>
+                <button type="button" class="time-btn" onclick="setDuration(3, this)">3分</button>
+                <button type="button" class="time-btn" onclick="setDuration(5, this)">5分</button>
+                <label class="sound-toggle">
+                    <input type="checkbox" id="sound-enabled" checked> ベル音あり
+                </label>
+            </div>
+        </section>
+
+        <hr>
+
+        <!-- 3. 瞑想実施サポートエリア -->
+        <section class="breathing-area">
+            <div class="circle-container">
+                <div id="breathing-circle" class="circle"></div>
+                <div class="guide-overlay">
+                    <div id="guide-text" class="guide-text">準備ができたら開始</div>
+                    <div id="phase-timer" class="phase-timer"></div>
+                </div>
+            </div>
+
+            <!-- 実施中のサポートメッセージ -->
+            <p id="support-message" class="support-message">
+                背筋を軽く伸ばし、肩の力を抜いて座りましょう。
+            </p>
+
+            <div class="timer-status">
+                <span id="remaining-time">01:00</span>
+            </div>
+
+            <div class="action-buttons">
+                <button id="start-btn" type="button" onclick="toggleMeditation()">瞑想をはじめる</button>
+                <button id="reset-btn" type="button" onclick="resetMeditation()">リセット</button>
+            </div>
+        </section>
+
+        <hr>
+
+        <!-- 4. ナビゲーション -->
+        <nav class="nav-links">
+            <a href="relax.html">← 休憩ページへ戻る</a>
+        </nav>
+    </main>
+
+    <script src="meditation.js"></script>
+</body>
+</html>

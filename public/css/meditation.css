@@ -1,0 +1,274 @@
+@charset "UTF-8";
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: #fcfcf9;
+    color: #333333;
+    line-height: 1.6;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 18px;
+}
+
+header h1 {
+    font-size: 1.6rem;
+    font-weight: bold;
+    color: #222222;
+}
+
+.subtitle {
+    font-size: 0.9rem;
+    color: #666666;
+    margin-top: 4px;
+}
+
+main {
+    width: 100%;
+    max-width: 580px;
+}
+
+hr {
+    border: none;
+    border-top: 1px solid #e2e2dd;
+    margin: 18px 0;
+}
+
+/* やり方ガイド（折りたたみ） */
+.howto-section > details {
+    background-color: #f4f4ef;
+    border: 1px solid #e0e0d8;
+    border-radius: 6px;
+    padding: 10px 14px;
+}
+
+.howto-section > details > summary {
+    font-size: 0.92rem;
+    font-weight: bold;
+    color: #444;
+    cursor: pointer;
+    outline: none;
+}
+
+.howto-content {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #e0e0d8;
+    font-size: 0.88rem;
+    color: #444;
+}
+
+.howto-content > ol {
+    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* もっと詳しく！知りたい人向け（入れ子アコーディオン） */
+.deep-dive {
+    margin-top: 12px;
+    background-color: #fcfcf9;
+    border: 1px solid #dcdcd4;
+    border-radius: 5px;
+    padding: 8px 12px;
+}
+
+.deep-dive summary {
+    font-size: 0.86rem;
+    font-weight: bold;
+    color: #333;
+    cursor: pointer;
+    outline: none;
+}
+
+.deep-dive-content {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #e6e6e0;
+    font-size: 0.85rem;
+    color: #444;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.deep-dive-content h4 {
+    font-size: 0.88rem;
+    color: #222;
+    margin-bottom: 4px;
+}
+
+.deep-dive-content ol.posture-list,
+.deep-dive-content ul {
+    padding-left: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* コントロール領域 */
+.controls {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.control-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95rem;
+}
+
+select {
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #ffffff;
+    color: #333;
+    font-size: 0.9rem;
+    outline: none;
+    cursor: pointer;
+}
+
+button {
+    padding: 5px 14px;
+    border: 1px solid #b5b5b0;
+    border-radius: 4px;
+    background-color: #f4f4f0;
+    color: #333;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+button:hover {
+    background-color: #e8e8e2;
+}
+
+button.active {
+    background-color: #dcdcd5;
+    border-color: #888882;
+    font-weight: bold;
+}
+
+.sound-toggle {
+    margin-left: auto;
+    font-size: 0.85rem;
+    color: #555;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+}
+
+/* 呼吸・瞑想ガイドサークル */
+.breathing-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 0;
+}
+
+.circle-container {
+    position: relative;
+    width: 210px;
+    height: 210px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+}
+
+.circle {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    background-color: #ecece6;
+    border: 2px solid #c8c8be;
+    transform: scale(1);
+    transition-property: transform, background-color;
+    transition-timing-function: ease-in-out;
+}
+
+.guide-overlay {
+    position: absolute;
+    text-align: center;
+    pointer-events: none;
+    width: 190px;
+}
+
+.guide-text {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #333;
+}
+
+.phase-timer {
+    font-size: 1.3rem;
+    font-family: monospace, sans-serif;
+    color: #555;
+    margin-top: 2px;
+    height: 1.5rem;
+}
+
+/* 実施サポートメッセージ */
+.support-message {
+    font-size: 0.92rem;
+    color: #444;
+    background-color: #f4f4ef;
+    padding: 8px 16px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+    text-align: center;
+    min-height: 2.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.timer-status {
+    font-size: 1.5rem;
+    font-family: monospace, sans-serif;
+    color: #222;
+    font-weight: bold;
+    margin-bottom: 14px;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+#start-btn {
+    padding: 7px 22px;
+    font-weight: bold;
+}
+
+/* ナビゲーション */
+.nav-links {
+    font-size: 0.9rem;
+}
+
+.nav-links a {
+    color: #333333;
+    text-decoration: underline;
+}
+
+.nav-links a:hover {
+    color: #666666;
+}
