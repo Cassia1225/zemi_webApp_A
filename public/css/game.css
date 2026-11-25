@@ -1,0 +1,416 @@
+/* =========================================
+   1. 全ミニゲーム共通ベース
+   ========================================= */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: sans-serif;
+    background-color: #f7f9fc;
+    color: #333;
+    text-align: center;
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    max-width: 540px;
+    margin: 30px auto;
+    background: #fff;
+    padding: 36px 28px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.container--desc { max-width: 600px; }
+.container--play { max-width: 960px; }
+
+h1 {
+    color: #2b6cb0;
+    margin: 0 0 12px 0;
+    font-size: 1.7rem;
+}
+
+.desc-text,
+p.desc {
+    color: #718096;
+    margin: 0 0 22px 0;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+/* 説明文・図解エリア共通 */
+.description {
+    text-align: left;
+    line-height: 1.6;
+    color: #4a5568;
+    margin-bottom: 25px;
+}
+.description p {
+    margin-bottom: 14px;
+}
+
+.diagram-box {
+    background-color: #edf2f7;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    text-align: left;
+}
+.diagram-title {
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #2d3748;
+    text-align: center;
+}
+
+.explanation-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 0.95rem;
+}
+.explanation-list li {
+    margin-bottom: 10px;
+    line-height: 1.6;
+}
+
+/* プレイ履歴ボード共通 */
+.history-board {
+    margin-top: 25px;
+    margin-bottom: 25px;
+    text-align: left;
+    background: #edf2f7;
+    padding: 18px;
+    border-radius: 8px;
+    min-height: 120px;
+}
+.history-board h3 {
+    margin: 0 0 12px 0;
+    color: #4a5568;
+    font-size: 1rem;
+    border-bottom: 2px solid #cbd5e0;
+    padding-bottom: 5px;
+}
+.history-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 390px;   /* 約10件分の高さ（1行あたり約39px） */
+    overflow-y: auto;    /* 11件目以降は縦スクロール */
+    padding-right: 6px;  /* スクロールバーとランクバッジが重ならない余白 */
+}
+.history-list li {
+    padding: 8px 0;
+    border-bottom: 1px dashed #cbd5e0;
+    color: #4a5568;
+    font-size: 0.92rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+}
+.history-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* ボタン・リンク共通 */
+.start-btn,
+.submit-btn {
+    display: inline-block;
+    background-color: #4299e1;
+    color: #fff;
+    border: none;
+    text-decoration: none;
+    padding: 12px 40px;
+    font-size: 1.1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    box-shadow: 0 4px 6px rgba(66, 153, 225, 0.2);
+    font-weight: bold;
+}
+.start-btn:hover,
+.submit-btn:hover {
+    background-color: #3182ce;
+}
+
+.back-link {
+    display: block;
+    margin-top: 25px;
+    color: #718096;
+    text-decoration: none;
+    font-size: 0.95rem;
+}
+.back-link:hover {
+    color: #2d3748;
+    text-decoration: underline;
+}
+
+/* バッジ共通 */
+.badge,
+.badge-hit,
+.badge-blow {
+    display: inline-block;
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+/* =========================================
+   2. Hit and Blow 専用スタイル
+   ========================================= */
+.number-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+.num-box {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #fff;
+    border: 2px solid #cbd5e0;
+    border-radius: 6px;
+    font-size: 20px;
+    font-weight: bold;
+}
+.num-box.hit  { border-color: #f56565; color: #e53e3e; }
+.num-box.blow { border-color: #d69e2e; color: #b7791f; }
+.badge-hit    { background-color: #f56565; }
+.badge-blow   { background-color: #d69e2e; }
+
+.input-group {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+.input-group input {
+    width: 60px;
+    height: 60px;
+    font-size: 28px;
+    text-align: center;
+    border: 2px solid #cbd5e0;
+    border-radius: 8px;
+    background-color: #edf2f7;
+    color: #2d3748;
+    outline: none;
+    transition: border-color 0.2s;
+}
+.input-group input:focus {
+    border-color: #63b3ed;
+    background-color: #fff;
+}
+
+/* =========================================
+   3. 反射神経テスト 専用スタイル
+   ========================================= */
+.key-cap {
+    display: inline-block;
+    background: #fff;
+    border: 1px solid #cbd5e0;
+    border-bottom: 3px solid #a0aec0;
+    border-radius: 5px;
+    padding: 1px 8px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #2d3748;
+    margin: 0 2px;
+}
+
+.step-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+.color-box {
+    width: 115px;
+    height: 55px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 8px;
+    color: #fff;
+    font-weight: bold;
+    font-size: 0.95rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.color-box--wait { background-color: #f56565; }
+.color-box--go   { background-color: #48bb78; }
+.arrow { font-size: 1.2rem; font-weight: bold; color: #718096; }
+
+.badge--wait { background-color: #f56565; }
+.badge--go   { background-color: #48bb78; }
+.badge--ng   { background-color: #d69e2e; }
+
+.signal-box {
+    min-height: 210px;
+    padding: 20px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    font-weight: bold;
+    margin-bottom: 20px;
+    transition: background-color 0.08s;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    cursor: pointer;
+}
+.signal-box--idle    { background-color: #4299e1; }
+.signal-box--waiting { background-color: #f56565; }
+.signal-box--ready   { background-color: #48bb78; }
+.signal-box--foul    { background-color: #d69e2e; }
+.signal-box--result  { background-color: #2b6cb0; }
+
+.signal-main {
+    font-size: 2rem;
+    margin-bottom: 8px;
+    word-break: keep-all;
+}
+.signal-sub {
+    font-size: 0.95rem;
+    opacity: 0.95;
+    font-weight: normal;
+}
+
+.result-rank-pill {
+    display: inline-block;
+    padding: 4px 16px;
+    border-radius: 999px;
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #fff;
+    margin-bottom: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+.result-comment { font-size: 0.95rem; margin-bottom: 10px; }
+.best-score { font-size: 1rem; font-weight: bold; color: #2b6cb0; margin-bottom: 20px; }
+
+/* ランク基準表 */
+.kijun-section {
+    text-align: left;
+    margin-bottom: 28px;
+}
+.kijun-section h2,
+.kijun-section h3 {
+    font-size: 1.05rem;
+    color: #2b6cb0;
+    margin: 0 0 10px 0;
+    text-align: center;
+}
+
+.table-wrap {
+    overflow-x: auto;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+.kijun-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+    background: #fff;
+}
+.kijun-table th,
+.kijun-table td {
+    padding: 7px 9px;
+    border-bottom: 1px solid #edf2f7;
+    text-align: left;
+}
+.kijun-table th {
+    background-color: #edf2f7;
+    color: #4a5568;
+    font-weight: bold;
+}
+.kijun-table tr:last-child td { border-bottom: none; }
+.kijun-table tr.is-current {
+    background-color: #fefcbf;
+    font-weight: bold;
+}
+
+.rank-badge {
+    display: inline-block;
+    min-width: 36px;
+    text-align: center;
+    padding: 2px 7px;
+    border-radius: 5px;
+    color: #fff;
+    font-weight: bold;
+    font-size: 0.8rem;
+}
+/* 2カラムレイアウト（PC・タブレット） */
+.play-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    gap: 28px;
+    align-items: start;
+}
+
+.play-main .history-board {
+    margin-bottom: 0;
+}
+
+.play-side .kijun-section {
+    margin-bottom: 0;
+}
+/* =========================================
+   4. レスポンシブ対応（スマホ・狭小ウィンドウ）
+   ========================================= */
+@media (max-width: 600px) {
+    body { padding: 12px; }
+    .container { margin: 12px auto; padding: 22px 14px; }
+    h1 { font-size: 1.38rem; }
+
+    .color-box { width: 95px; height: 48px; font-size: 0.85rem; }
+    .signal-box { min-height: 220px; padding: 16px; }
+    .signal-main { font-size: 1.65rem; }
+
+    .input-group { gap: 10px; }
+    .input-group input { width: 54px; height: 54px; font-size: 24px; }
+
+    .kijun-table { font-size: 0.8rem; }
+    .kijun-table th,
+    .kijun-table td { padding: 6px 5px; }
+
+    .start-btn,
+    .submit-btn { width: 100%; padding: 14px 20px; }
+}
+/* タブレット未満（767px以下）は縦1列に切り替え */
+@media (max-width: 767px) {
+    .play-layout {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+}
+/* デバイス幅ごとのテキスト出し分け */
+.only-mobile,
+.only-tablet,
+.only-pc {
+    display: none;
+}
+
+@media (max-width: 600px) {
+    .only-mobile { display: inline; }
+}
+@media (min-width: 601px) and (max-width: 1024px) {
+    .only-tablet { display: inline; }
+}
+@media (min-width: 1025px) {
+    .only-pc { display: inline; }
+}

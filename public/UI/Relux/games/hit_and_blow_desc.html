@@ -4,38 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>あそびかた - Hit and Blow</title>
-    <style>
-        body { font-family: sans-serif; background-color: #f7f9fc; color: #333; text-align: center; margin: 0; padding: 20px; }
-        .container { max-width: 600px; margin: 40px auto; background: #fff; padding: 40px 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); }
-        h1 { color: #2b6cb0; margin-bottom: 20px; }
-        
-        /* 説明文のスタイル */
-        .description { text-align: left; line-height: 1.6; color: #4a5568; margin-bottom: 30px; }
-        .description p { margin-bottom: 15px; }
-        
-        /* 図解エリアのスタイル */
-        .diagram-box { background-color: #edf2f7; padding: 20px; border-radius: 8px; margin-bottom: 30px; text-align: left; }
-        .diagram-title { font-weight: bold; margin-bottom: 10px; color: #2d3748; text-align: center; }
-        .number-row { display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 15px; }
-        .num-box { width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; background-color: #fff; border: 2px solid #cbd5e0; border-radius: 6px; font-size: 20px; font-weight: bold; }
-        .num-box.hit { border-color: #f56565; color: #e53e3e; } /* Hitは赤っぽく */
-        .num-box.blow { border-color: #d69e2e; color: #b7791f; } /* Blowは黄色っぽく */
-        
-        .explanation-list { list-style: none; padding: 0; margin: 0; font-size: 0.95rem; }
-        .explanation-list li { margin-bottom: 8px; }
-        .badge-hit { display: inline-block; background: #f56565; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.85rem; font-weight: bold; margin-right: 5px; }
-        .badge-blow { display: inline-block; background: #d69e2e; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.85rem; font-weight: bold; margin-right: 5px; }
-
-        /* ボタン類 */
-        .start-btn { display: inline-block; background-color: #4299e1; color: white; text-decoration: none; padding: 12px 40px; font-size: 1.1rem; border-radius: 8px; transition: background-color 0.2s; box-shadow: 0 4px 6px rgba(66, 153, 225, 0.2); font-weight: bold; }
-        .start-btn:hover { background-color: #3182ce; }
-        .back-link { display: block; margin-top: 30px; color: #718096; text-decoration: none; font-size: 0.95rem; }
-        .back-link:hover { color: #2d3748; text-decoration: underline; }
-    </style>
+    <link rel="stylesheet" href="../../../css/game.css">
 </head>
 <body>
 
-    <div class="container">
+    <div class="container container--desc">
         <h1>Hit and Blow のあそびかた</h1>
         
         <div class="description">

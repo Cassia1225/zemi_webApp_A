@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>あそびかた - 反射神経テスト</title>
+    <link rel="stylesheet" href="../../../css/game.css">
+</head>
+<body>
+
+    <div class="container container--desc">
+        <h1>反射神経テスト のあそびかた</h1>
+
+        <div class="description">
+            <p>
+                画面の色が変わった瞬間に、どれだけ速く
+                <span class="only-mobile"><strong>画面をタッチ</strong>できるか</span>
+                <span class="only-tablet"><span class="key-cap">Space</span> キー（または<strong>画面をタッチ</strong>）できるか</span>
+                <span class="only-pc"><span class="key-cap">Space</span> キーを押せるか</span>
+                を測るゲームです。
+            </p>
+            <p>タイムは <strong>「ミリ秒（ms）」</strong> で表示されます。数字が小さいほど高ランクになります！</p>
+        </div>
+
+        <div class="diagram-box">
+            <div class="diagram-title">【流れ】緑に変わったらすぐに反応！</div>
+
+            <div class="step-row">
+                <div class="color-box color-box--wait">まって…</div>
+                <span class="arrow">➔</span>
+                <div class="color-box color-box--go">今だ！</div>
+            </div>
+
+            <ul class="explanation-list">
+                <li><span class="badge badge--wait">赤色のとき</span> まだ押さずにじっと待ちます。</li>
+                <li>
+                    <span class="badge badge--go">緑色のとき</span>
+                    <strong>
+                        変わった瞬間にすぐ
+                        <span class="only-mobile">画面をタッチ！</span>
+                        <span class="only-tablet"><span class="key-cap">Space</span>（または画面をタッチ）！</span>
+                        <span class="only-pc"><span class="key-cap">Space</span> キーを押す！</span>
+                    </strong>
+                </li>
+                <li><span class="badge badge--ng">フライング</span> 緑になる前に押すとやり直しになります。</li>
+            </ul>
+        </div>
+
+        <div class="kijun-section">
+            <h2>ランク基準表</h2>
+            <div class="table-wrap">
+                <table class="kijun-table">
+                    <thead>
+                        <tr>
+                            <th>ランク</th>
+                            <th>反応速度</th>
+                            <th>評価コメント</th>
+                        </tr>
+                    </thead>
+                    <tbody id="kijun-tbody">
+                        <tr><td colspan="3" style="text-align:center;">読み込み中...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <a href="reaction_test.html" class="start-btn">ゲームをはじめる</a>
+        <a href="../game_select.html" class="back-link">← ゲーム選択に戻る</a>
+    </div>
+
+    <script src="reaction_kijun.js"></script>
+    <script>
+        const tbody = document.getElementById('kijun-tbody');
+        tbody.innerHTML = '';
+        REACTION_RANK_KIJUN.forEach(item => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><span class="rank-badge" style="background:${item.color};">${item.rank}</span></td>
+                <td>${item.range}</td>
+                <td>${item.comment}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    </script>
+</body>
+</html>
