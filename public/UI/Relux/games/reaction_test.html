@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>反射神経テスト</title>
+    <link rel="stylesheet" href="../../../css/game.css">
+</head>
+<body>
+
+    <div class="container container--play">
+        <h1>反射神経テスト</h1>
+        <p class="desc-text" id="desc-text"></p>
+
+        <!-- 2カラムレイアウト用ラッパー -->
+        <div class="play-layout">
+            <!-- 左側：判定エリア・ベスト記録・プレイ履歴 -->
+            <div class="play-main">
+                <div class="signal-box signal-box--idle" id="signal-box">
+                    <div class="signal-main">スタート</div>
+                    <div class="signal-sub"></div>
+                </div>
+
+                <div class="best-score" id="best-score">ベスト記録: --- ms</div>
+
+                <div class="history-board">
+                    <h3>プレイ履歴</h3>
+                    <ul class="history-list" id="history-list"></ul>
+                </div>
+            </div>
+
+            <!-- 右側：ランク基準表 -->
+            <div class="play-side">
+                <div class="kijun-section">
+                    <h3>ランク基準表</h3>
+                    <div class="table-wrap">
+                        <table class="kijun-table">
+                            <thead>
+                                <tr>
+                                    <th>ランク</th>
+                                    <th>反応速度</th>
+                                    <th>評価コメント</th>
+                                </tr>
+                            </thead>
+                            <tbody id="kijun-tbody">
+                                <tr><td colspan="3" style="text-align:center;">読み込み中...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2カラムの下の中央に配置 -->
+        <a href="../game_select.html" class="back-link">← ゲーム選択に戻る</a>
+    </div>
+
+    <script src="reaction_kijun.js"></script>
+    <script>
+        const signalBox = document.getElementById('signal-box');
+        const descText = document.getElementById('desc-text');
+        const bestScoreEl = document.getElementById('best-score');
+        const historyList = document.getElementById('history-list');
+        const kijunTbody = document.getElementById('kijun-tbody');
+
+        let state = 'idle';
+        let timerId = null;
+        let startTime = 0;
+        let attemptCount = 0;
+        let bestTime = null;
+        let lastResult = null;
+        let rankList = [];
+
+        // 画面幅からデバイスサイズを3段階で判定
+        function getDeviceMode() {
+            const w = window.innerWidth;
+            if (w <= 600) return 'mobile';      // スマホ
+            if (w <= 1024) return 'tablet';     // タブレット / 狭めPC
+            return 'pc';                        // PC全画面
+        }
+
+        // モードに応じた操作案内テキストを返す
+        function getActionText(mode) {
+            if (mode === 'mobile') {
+                return {
+                    desc: '画面が緑になったら <strong>画面をタッチ</strong> してください',
+                    startMain: '画面をタッチしてスタート',
+                    startSub: '緑に変わったらすぐにタッチ！',
+                    waitSub: '緑になるまでタッチしないで！',
+                    readyMain: '今だ！画面をタッチ！',
+                    readySub: '急いでタッチ！',
+                    retrySub: '画面をタッチでもう一度チャレンジ'
+                };
+            } else if (mode === 'tablet') {
+                return {
+                    desc: '画面が緑になったら <span class="key-cap">Space</span>（または画面をタッチ）してください',
+                    startMain: 'スタート',
+                    startSub: 'Space キー（または画面をタッチ）ではじめる',
+                    waitSub: '緑色になるまで押さないで！',
+                    readyMain: '今だ！',
+                    readySub: 'Space キー（または画面をタッチ）！',
+                    retrySub: 'Space キー（または画面をタッチ）でもう一度'
+                };
+            } else {
+                return {
+                    desc: '画面が緑になったら <span class="key-cap">Space</span> キーを押してください',
+                    startMain: 'スタート',
+                    startSub: 'Space キーを押してはじめる',
+                    waitSub: '緑色になるまで押さないで！',
+                    readyMain: '今だ！',
+                    readySub: 'Space キーを押せ！',
+                    retrySub: 'Space キーでもう一度チャレンジ'
+                };
+            }
+        }
+
+        function updateGuidanceText() {
+            const text = getActionText(getDeviceMode());
+            descText.innerHTML = text.desc;
+
+            if (state === 'idle') {
+                signalBox.innerHTML = `
+                    <div class="signal-main">${text.startMain}</div>
+                    <div class="signal-sub">${text.startSub}</div>
+                `;
+            } else if (state === 'waiting') {
+                signalBox.innerHTML = `
+                    <div class="signal-main">まって…</div>
+                    <div class="signal-sub">${text.waitSub}</div>
+                `;
+            } else if (state === 'ready') {
+                signalBox.innerHTML = `
+                    <div class="signal-main">${text.readyMain}</div>
+                    <div class="signal-sub">${text.readySub}</div>
+                `;
+            } else if (state === 'foul') {
+                signalBox.innerHTML = `
+                    <div class="signal-main">フライング！</div>
+                    <div class="signal-sub">${text.retrySub}</div>
+                `;
+            } else if (state === 'result' && lastResult) {
+                renderResultPanel(lastResult.ms, lastResult.rankObj);
+            }
+        }
+
+        function renderResultPanel(ms, rankObj) {
+            const text = getActionText(getDeviceMode());
+            signalBox.innerHTML = `
+                <div class="result-rank-pill" style="background:${rankObj.color};">RANK ${rankObj.rank}</div>
+                <div class="signal-main">${ms} ms</div>
+                <div class="result-comment">${rankObj.comment}</div>
+                <div class="signal-sub">${text.retrySub}</div>
+            `;
+        }
+
+        function loadKijun() {
+            rankList = REACTION_RANK_KIJUN;
+            renderKijunTable(null);
+        }
+
+        function renderKijunTable(activeRank) {
+            kijunTbody.innerHTML = '';
+            rankList.forEach(item => {
+                const tr = document.createElement('tr');
+                if (activeRank && item.rank === activeRank) {
+                    tr.className = 'is-current';
+                }
+                tr.innerHTML = `
+                    <td><span class="rank-badge" style="background:${item.color};">${item.rank}</span></td>
+                    <td>${item.range}</td>
+                    <td>${item.comment}</td>
+                `;
+                kijunTbody.appendChild(tr);
+            });
+        }
+
+        function judgeRank(ms) {
+            for (const item of rankList) {
+                if (item.maxMs === null || ms <= item.maxMs) {
+                    return item;
+                }
+            }
+            return { rank: '-', comment: '計測完了', color: '#718096' };
+        }
+
+        function startTest() {
+            state = 'waiting';
+            signalBox.className = 'signal-box signal-box--waiting';
+            updateGuidanceText();
+
+            const delay = Math.floor(Math.random() * 3000) + 2000;
+            timerId = setTimeout(() => {
+                state = 'ready';
+                startTime = performance.now();
+                signalBox.className = 'signal-box signal-box--ready';
+                updateGuidanceText();
+            }, delay);
+        }
+
+        function handleAction() {
+            if (state === 'idle' || state === 'result' || state === 'foul') {
+                startTest();
+            } else if (state === 'waiting') {
+                clearTimeout(timerId);
+                state = 'foul';
+                signalBox.className = 'signal-box signal-box--foul';
+                updateGuidanceText();
+            } else if (state === 'ready') {
+                const reactionTime = Math.round(performance.now() - startTime);
+                const rankObj = judgeRank(reactionTime);
+
+                state = 'result';
+                attemptCount++;
+                lastResult = { ms: reactionTime, rankObj };
+
+                signalBox.className = 'signal-box signal-box--result';
+                renderResultPanel(reactionTime, rankObj);
+                renderKijunTable(rankObj.rank);
+
+                if (bestTime === null || reactionTime < bestTime) {
+                    bestTime = reactionTime;
+                    bestScoreEl.textContent = `ベスト記録: ${bestTime} ms (RANK ${rankObj.rank})`;
+                }
+
+                const newRecord = document.createElement('li');
+                newRecord.innerHTML = `
+                    <span>${attemptCount}回目</span>
+                    <span class="history-right">
+                        <strong>${reactionTime} ms</strong>
+                        <span class="rank-badge" style="background:${rankObj.color};">${rankObj.rank}</span>
+                    </span>
+                `;
+                historyList.insertBefore(newRecord, historyList.firstChild);
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.code !== 'Space') return;
+            e.preventDefault();
+            if (e.repeat) return;
+            handleAction();
+        });
+
+        signalBox.addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            handleAction();
+        });
+
+        window.addEventListener('resize', updateGuidanceText);
+
+        updateGuidanceText();
+        loadKijun();
+    </script>
+</body>
+</html>
