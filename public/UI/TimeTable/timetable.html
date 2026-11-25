@@ -13,7 +13,10 @@
 
     <!-- ヘッダー -->
     <header>
-      <h1 id="appTitle">時間割</h1>
+      <div class="title-group">
+        <select class="btn-mode-select" id="yearSelect" aria-label="年度選択" onchange="changeYear(this.value)"></select>
+        <h1 id="appTitle">時間割</h1>
+      </div>
 
       <button class="btn btn-danger delete-btn" id="deleteConfirmBtn" onclick="deleteSelected()" disabled>
         講義をタップして<wbr>削除する
@@ -131,6 +134,10 @@
           <input id="toId" placeholder="例 U-3C9D1X" maxlength="8" />
           <button type="button" class="btn btn-ghost contact-btn" id="contactBtn" style="display:none;" onclick="openContactModal()"></button>
           <div id="selectedList"></div>
+        </div>
+
+        <div class="field">送る年度
+          <div class="chips" id="sendYearRow"></div>
         </div>
 
         <div class="field">送るクォーター
