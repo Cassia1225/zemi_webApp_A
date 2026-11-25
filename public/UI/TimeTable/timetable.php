@@ -4,7 +4,7 @@ header('Content-Type: application/json; charset=utf-8');
 // ===== 送信/受信(ユーザIDで相手を指定して送る) =====
 // data/exchange.json の形:
 // { names: { "U-AAAAAA": "山田 太郎" },
-//   inbox: { "U-宛先": { "U-送信者": { ts, date, data: [{ name:'1Q', courses:[...] }] } } } }
+//   inbox: { "U-宛先": { "U-送信者": { ts, date, data: [{ year:2026, name:'1Q', courses:[...] }] } } } }
 // ※ユーザIDは仮実装。ログイン機能ができたら $me を認証済みIDに置き換える
 
 const Q_NAMES = ['1Q', '2Q', '3Q', '4Q'];
@@ -40,12 +40,29 @@ function isUserId($id) {
     return is_string($id) && preg_match('/^U-[0-9A-Z]{6}$/', $id) === 1;
 }
 
+/** 送信日時から、その日が属する年度(4月始まり)を返す */
+function fiscalYearOf($ts) {
+    $y = (int)date('Y', $ts);
+    return (int)date('n', $ts) >= 4 ? $y : $y - 1;
+}
+
+/** 年度のないデータ(旧形式)に、送信日の年度を付ける */
+function withYear($list, $ts) {
+    foreach ($list as &$q) {
+        if (empty($q['year'])) $q['year'] = fiscalYearOf($ts);
+    }
+    unset($q);
+    return $list;
+}
+
 /** 受け取った時間割を、保存してよい項目・長さだけにする */
 function cleanData($data) {
     $out = [];
     if (!is_array($data)) return $out;
     foreach ($data as $q) {
         if (!is_array($q) || !in_array($q['name'] ?? '', Q_NAMES, true)) continue;
+        $year = (int)($q['year'] ?? 0);
+        if ($year < 2000 || $year > 2100) $year = 0; // 0 = 年度なし(旧形式)
         $courses = [];
         foreach ((is_array($q['courses'] ?? null) ? $q['courses'] : []) as $c) {
             if (!is_array($c) || count($courses) >= 60) continue;
@@ -59,7 +76,7 @@ function cleanData($data) {
                 'colorIdx' => (int)($c['colorIdx'] ?? 0),
             ];
         }
-        $out[] = ['name' => $q['name'], 'courses' => $courses];
+        $out[] = ['year' => $year, 'name' => $q['name'], 'courses' => $courses];
     }
     return $out;
 }
@@ -95,7 +112,7 @@ $method = $_SERVER['REQUEST_METHOD'];
 if (!isUserId($me)) fail(400, 'ユーザIDが正しくありません。');
 
 // ===== 1. 送信 (POST) =====
-// 宛先の受信箱に入れる。同じ送信者から同じQを再送した場合は上書き、別のQは追加される
+// 宛先の受信箱に入れる。同じ送信者から同じ年度・同じQを再送した場合は上書き、別の年度・Qは追加される
 if ($action === 'send' && $method === 'POST') {
     $input = json_decode(file_get_contents('php://input'), true) ?: [];
     $to = $input['to'] ?? '';
@@ -103,14 +120,16 @@ if ($action === 'send' && $method === 'POST') {
     if ($to === $me) fail(400, '自分自身には送れません。');
     $name = mb_substr(trim((string)($input['name'] ?? '')), 0, 30);
     if ($name === '') fail(400, '表示名を入力してください。');
-    $data = cleanData($input['data'] ?? []);
+    $data = withYear(cleanData($input['data'] ?? []), time());
     if (!$data) fail(400, '送信する時間割がありません。');
 
     updateStore($dataFile, function (&$s) use ($me, $to, $name, $data) {
         $s['names'][$me] = $name;
         $byQ = [];
-        foreach (($s['inbox'][$to][$me]['data'] ?? []) as $q) $byQ[$q['name']] = $q;
-        foreach ($data as $q) $byQ[$q['name']] = $q;
+        $old = $s['inbox'][$to][$me] ?? null;
+        // 同じ年度・同じQは上書き、別の年度・別のQは残す
+        foreach (withYear($old['data'] ?? [], $old['ts'] ?? time()) as $q) $byQ[$q['year'] . '-' . $q['name']] = $q;
+        foreach ($data as $q) $byQ[$q['year'] . '-' . $q['name']] = $q;
         ksort($byQ);
         $s['inbox'][$to][$me] = [
             'ts'   => time(),
@@ -137,8 +156,7 @@ if ($action === 'inbox' && $method === 'GET') {
             'name' => $s['names'][$from] ?? '',
             'ts'   => $m['ts'],
             'date' => $m['date'],
-            'qs'   => array_column($m['data'], 'name'),
-            'data' => $m['data'],
+            'data' => withYear($m['data'], $m['ts']),
         ];
     }
     usort($list, function ($a, $b) { return $b['ts'] <=> $a['ts']; });

@@ -39,7 +39,7 @@ body.timetable {
   align-items: center;
   justify-content: space-between;
   margin-bottom: clamp(6px, 2vh, 24px);
-  flex-wrap: nowrap;
+  flex-wrap: wrap; /* 年度プルダウンを足したので、狭い画面では折り返す */
   gap: 6px 12px;
 }
 
@@ -60,6 +60,13 @@ body.timetable {
 .timetable h2 {
   font-size: 18px;
   margin: 0 0 16px;
+}
+
+.timetable .title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
 }
 
 .timetable .header-actions {

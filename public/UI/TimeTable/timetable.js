@@ -1,4 +1,4 @@
-/* 時間割アプリ:1Q〜4Q × 月〜土 × 6時限(時間は固定)。保存先は localStorage */
+/* 時間割アプリ:年度 × 1Q〜4Q × 月〜土 × 6時限(時間は固定)。保存先は localStorage */
 /* ===== 共通 ===== */
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => '&#' + c.charCodeAt(0) + ';'); // HTML に入れる前の無害化
@@ -34,14 +34,27 @@ const PALETTE = [
   '#D6C6F0',
 ];
 const Q_NAMES = ['1Q', '2Q', '3Q', '4Q'];
+/** 年度は4月始まり(2026/4〜2027/3 = 2026年度) */
+const fiscalYear = (d = new Date()) => (d.getMonth() >= 3 ? d.getFullYear() : d.getFullYear() - 1);
 /* ===== 状態 ===== */
-let patterns = [];          // 時間割 [{ id, name: '1Q', courses: [...] }, ...]
+let patterns = [];          // 時間割 [{ id, year: 2026, name: '1Q', courses: [...] }, ...](年度→Qの順に並べる)
 let activeId;               // 表示中の時間割の ID
 let draft;                  // 登録・編集フォームの下書き
 let viewing;                // 詳細表示中の講義
 const selected = new Set(); // 削除モードで選択中の講義 ID
 const current = () => patterns.find(p => p.id === activeId);
 const courses = () => current().courses;
+const years = () => [...new Set(patterns.map(p => p.year))];
+const quartersOf = year => patterns.filter(p => p.year === year);
+/** 指定した年度の1Q〜4Qを(なければ)作って、並べ直す */
+function ensureYear(year) {
+  Q_NAMES.forEach(name => {
+    if (!patterns.some(p => p.year === year && p.name === name)) {
+      patterns.push({ id: uid(), year, name, courses: [] });
+    }
+  });
+  patterns.sort((a, b) => a.year - b.year || Q_NAMES.indexOf(a.name) - Q_NAMES.indexOf(b.name));
+}
 const findCourse = (day, period) => courses().find(c => c.day === day && c.period === period);
 /* ===== 保存・読み込み ===== */
 function save() {
@@ -58,13 +71,13 @@ function load() {
     saved = JSON.parse(localStorage.getItem(KEY)) || {};
   } catch (e) {}
   patterns = Array.isArray(saved.patterns) ? saved.patterns : [];
-  // 1Q〜4Q を必ず用意する
-  for (let n = 1; n <= 4; n++) {
-    if (!patterns.some(p => p.name === `${n}Q`)) {
-      patterns.push({ id: uid(), name: `${n}Q`, courses: [] });
-    }
-  }
-  activeId = patterns.some(p => p.id === saved.activeId) ? saved.activeId : patterns[0].id;
+  // 年度のない古いデータは、今の年度のものとして扱う
+  patterns.forEach(p => { if (!p.year) p.year = fiscalYear(); });
+  // 今の年度の1Q〜4Q を必ず用意する
+  ensureYear(fiscalYear());
+  activeId = patterns.some(p => p.id === saved.activeId)
+    ? saved.activeId
+    : patterns.find(p => p.year === fiscalYear()).id;
 }
 /** 保存して、表を描き直す */
 function update() {
@@ -84,10 +97,17 @@ function render() {
 }
 /** タイトル・矢印・削除ボタンの状態を更新 */
 function renderHeader() {
-  const index = patterns.indexOf(current());
+  const list = quartersOf(current().year);
+  const index = list.indexOf(current());
   $('appTitle').textContent = current().name;
   $('prevBtn').disabled = index === 0;
-  $('nextBtn').disabled = index === patterns.length - 1;
+  $('nextBtn').disabled = index === list.length - 1;
+  // 年度のプルダウン(末尾に追加・削除)
+  $('yearSelect').innerHTML = years()
+    .map(y => `<option value="${y}"${y === current().year ? ' selected' : ''}>${y}年度</option>`)
+    .join('')
+    + '<option value="__add">＋ 年度を追加</option>'
+    + (years().length > 1 ? '<option value="__del">－ この年度を削除</option>' : '');
   // 削除ボタン:未選択なら説明文、選択中なら件数つき
   $('deleteConfirmBtn').disabled = !selected.size;
   $('deleteConfirmBtn').innerHTML = selected.size
@@ -158,11 +178,39 @@ function deleteSelected() {
   selected.clear();
   deleteCourses(ids);
 }
-/* ===== 時間割の切り替え(矢印・スワイプ) ===== */
+/* ===== 時間割の切り替え(矢印・スワイプ。移動は同じ年度の中だけ) ===== */
 function step(dir) {
-  const next = patterns[patterns.indexOf(current()) + dir];
+  const list = quartersOf(current().year);
+  const next = list[list.indexOf(current()) + dir];
   if (!next) return;
   activeId = next.id;
+  selected.clear();
+  update();
+}
+/* ===== 年度の切り替え・追加・削除 ===== */
+function changeYear(value) {
+  const name = current().name;
+  if (value === '__add') {
+    const input = prompt('追加する年度(西暦)を入力してください\n例:2027');
+    const text = (input ?? '').replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0)).trim();
+    if (input === null) return renderHeader();
+    const year = +text;
+    if (!/^\d{4}$/.test(text) || year < 2000 || year > 2100) {
+      alert('2000〜2100の西暦4桁で入力してください');
+      return renderHeader();
+    }
+    ensureYear(year);
+    activeId = patterns.find(p => p.year === year && p.name === name).id;
+  } else if (value === '__del') {
+    const year = current().year;
+    if (!confirm(`${year}年度の時間割(1Q〜4Q)をすべて削除しますか?`)) return renderHeader();
+    patterns = patterns.filter(p => p.year !== year);
+    const rest = years();
+    const near = rest.reduce((a, b) => (Math.abs(b - year) < Math.abs(a - year) ? b : a));
+    activeId = patterns.find(p => p.year === near && p.name === name).id;
+  } else {
+    activeId = patterns.find(p => p.year === +value && p.name === name).id;
+  }
   selected.clear();
   update();
 }
@@ -265,7 +313,7 @@ function saveForm() {
   // 編集中の講義は、いったん今のQから外す(Qを変えた場合は移動になる)
   if (draft.id) current().courses = courses().filter(c => c.id !== draft.id);
   // 選んだQすべてに登録する(同じコマの既存の講義は置き換える)
-  patterns.filter(p => draft.qs.includes(p.name)).forEach(p => {
+  patterns.filter(p => p.year === current().year && draft.qs.includes(p.name)).forEach(p => {
     const rest = p.courses.filter(
       c => !slots.some(s => s.day === c.day && s.period === c.period)
     );
@@ -309,7 +357,8 @@ const ID_KEY = 'timetable:userId';
 const NAME_KEY = 'timetable:userName';
 const CONTACTS_KEY = 'timetable:contacts';
 const ID_PATTERN = /^U-[0-9A-Z]{6}$/;
-let sendQs = [];     // 送るQ
+let sendYear;        // 送る年度
+let sendQs = [];     // 送るQ(sendYear の中から選ぶ)
 let selectedTo = new Set();   // 送信先に選んだ相手のID(ユーザ一覧で選択)
 let contactDraft = new Set(); // ユーザ一覧モーダルで選択中(「決定」で selectedTo に反映)
 let contacts = [];   // 送ったことのある相手のID(新しい順)
@@ -347,6 +396,7 @@ function saveContacts() {
 /* ----- モーダルとタブ ----- */
 async function openExchangeModal() {
   contacts = loadContacts();
+  sendYear = current().year;
   sendQs = [current().name];
   $('myIdText').textContent = myId();
   $('myName').value = localStorage.getItem(NAME_KEY) || '';
@@ -355,6 +405,7 @@ async function openExchangeModal() {
   setSendMsg('');
   showExchangeTab('send');
   renderContacts();
+  renderSendYears();
   renderSendQs();
   openModal('exchangeOverlay');
   await refreshExchange();
@@ -390,6 +441,15 @@ function copyMyId(btn) {
 function setSendMsg(text, ok) {
   $('sendMsg').textContent = text;
   $('sendMsg').className = 'send-msg' + (text ? (ok ? ' ok' : ' err') : '');
+}
+function renderSendYears() {
+  $('sendYearRow').innerHTML = years().map(y => `
+    <button type="button" class="chip${y === sendYear ? ' on' : ''}"
+            onclick="setSendYear(${y})">${y}年度</button>`).join('');
+}
+function setSendYear(y) {
+  sendYear = y;
+  renderSendYears();
 }
 function renderSendQs() {
   $('sendQRow').innerHTML = Q_NAMES.map(q => `
@@ -463,8 +523,8 @@ async function executeSend() {
   if (!qs.length) return setSendMsg('送るクォーターを1つ以上選んでください');
   localStorage.setItem(NAME_KEY, name);
   const data = patterns
-    .filter(p => qs.includes(p.name))
-    .map(p => ({ name: p.name, courses: p.courses }));
+    .filter(p => p.year === sendYear && qs.includes(p.name))
+    .map(p => ({ year: p.year, name: p.name, courses: p.courses }));
   const results = await Promise.allSettled(
     targets.map(to => api('send', { body: { to, name, data } }))
   );
@@ -477,7 +537,7 @@ async function executeSend() {
   if (ngIds.length) {
     setSendMsg(`${ngIds.map(label).join('、')} への送信に失敗しました`);
   } else {
-    setSendMsg(`${okIds.map(label).join('、')} に ${qs.join('・')} を送信しました`, true);
+    setSendMsg(`${okIds.map(label).join('、')} に ${sendYear}年度 ${qs.join('・')} を送信しました`, true);
   }
   renderContacts();
   refreshExchange();
@@ -490,29 +550,36 @@ function renderInbox() {
         <div class="receive-item" onclick="openInbox(${i})">
           <div>
             <div class="receive-sender">👤 ${esc(m.name || m.id)}</div>
-            <div class="receive-date">${esc(m.id)} ・ ${esc(m.qs.join(' '))}</div>
+            <div class="receive-date">${esc(m.id)} ・ ${esc(summarize(m.data))}</div>
           </div>
           <div class="receive-date">${esc(m.date)}</div>
         </div>`).join('')}</div>`
     : '<p class="share-empty">受信した時間割はありません</p>';
 }
+/** 「2026年度 1Q 2Q / 2025年度 3Q」のような要約(年度なしの古いデータは year が 0 になる) */
+function summarize(data) {
+  const byYear = {};
+  data.forEach(q => (byYear[q.year] ||= []).push(q.name));
+  return Object.entries(byYear).map(([y, qs]) => `${y}年度 ${qs.join(' ')}`).join(' / ');
+}
+const qKey = q => `${q.year}-${q.name}`;
 function openInbox(i) {
-  inboxView = { index: i, qName: inbox[i].data[0]?.name };
+  inboxView = { index: i, key: inbox[i].data[0] && qKey(inbox[i].data[0]) };
   renderInboxView();
 }
-function showInboxQ(q) {
-  inboxView.qName = q;
+function showInboxQ(key) {
+  inboxView.key = key;
   renderInboxView();
 }
 function renderInboxView() {
   const m = inbox[inboxView.index];
-  const q = m.data.find(x => x.name === inboxView.qName);
+  const q = m.data.find(x => qKey(x) === inboxView.key);
   $('receiveContent').innerHTML = `
     <button class="btn btn-ghost" style="margin-bottom:10px;" onclick="renderInbox()">← 送信者一覧に戻る</button>
     <div class="receive-sender" style="font-size:16px;">${esc(m.name || m.id)} さんの時間割</div>
     <div class="chips">${m.data.map(x => `
-      <button type="button" class="chip${x.name === inboxView.qName ? ' on' : ''}"
-              onclick="showInboxQ('${esc(x.name)}')">${esc(x.name)}</button>`).join('')}</div>
+      <button type="button" class="chip${qKey(x) === inboxView.key ? ' on' : ''}"
+              onclick="showInboxQ('${esc(qKey(x))}')">${esc(x.year)}年度 ${esc(x.name)}</button>`).join('')}</div>
     <div style="margin-top:12px;">${q ? previewGridHtml(q.courses || []) : ''}</div>`;
 }
 /** 表の読み取り専用プレビュー(.preview-grid を使用) */
