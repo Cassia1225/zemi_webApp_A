@@ -9,8 +9,8 @@
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    background-color: #fcfcf9; /* 眩しくない柔らかいオフホワイト */
-    color: #333333;           /* 強い純黒を避けたダークグレー */
+    background-color: #fcfcf9;
+    color: #333333;
     line-height: 1.6;
     padding: 24px;
     display: flex;
@@ -31,7 +31,7 @@ header h1 {
     color: #222222;
 }
 
-/* メインコンテナ（横幅を制限して中央に配置） */
+/* メインコンテナ */
 main {
     width: 100%;
     max-width: 580px;
@@ -45,7 +45,7 @@ section {
 
 hr {
     border: none;
-    border-top: 1px solid #d8d8cf; /* 柔らかいグレーの区切り線 */
+    border-top: 1px solid #d8d8cf;
     margin: 20px 0;
 }
 
@@ -57,7 +57,8 @@ label, span {
 
 /* ドロップダウン（select） */
 select {
-    padding: 4px 8px;
+    max-width: 100%;
+    padding: 5px 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
     background-color: #ffffff;
@@ -73,7 +74,7 @@ select:focus {
 
 /* ボタン */
 button {
-    padding: 4px 12px;
+    padding: 5px 14px;
     border: 1px solid #b5b5b0;
     border-radius: 4px;
     background-color: #f4f4f0;
@@ -137,7 +138,7 @@ section > div:first-child {
 #timer-box div {
     display: flex;
     justify-content: center;
-    gap: 6px;
+    gap: 8px;
 }
 
 /* 3. イライラを書き出すMEMO */
@@ -148,12 +149,12 @@ section > div:first-child {
 #memo-input {
     width: 100%;
     max-width: 500px;
-    padding: 8px;
+    padding: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
     background-color: #ffffff;
     color: #333;
-    font-size: 0.95rem;
+    font-size: 1rem; /* スマホで入力時に自動ズームされないよう16px相当に設定 */
     outline: none;
     resize: vertical;
 }
@@ -162,7 +163,7 @@ section > div:first-child {
     border-color: #888;
 }
 
-/* 4. ミニゲーム・瞑想ページリンク */
+/* 4. リンク */
 a {
     color: #333333;
     text-decoration: underline;
@@ -171,4 +172,66 @@ a {
 
 a:hover {
     color: #666666;
+}
+
+/* -------------------------------------------------------------
+   レスポンシブ対応（スマホ・タブレット向け：幅600px以下）
+------------------------------------------------------------- */
+@media (max-width: 600px) {
+    body {
+        padding: 16px 14px;
+    }
+
+    header h1 {
+        font-size: 1.5rem;
+    }
+
+    hr {
+        margin: 16px 0;
+    }
+
+    /* BGM選択と再生ボタンを縦に並べて押しやすく */
+    section:first-of-type {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+    }
+
+    #music-select {
+        width: 100%;
+        max-width: 340px;
+        margin-right: 0;
+        padding: 8px 10px;
+    }
+
+    #play-btn {
+        width: 100%;
+        max-width: 340px;
+        padding: 8px 16px;
+    }
+
+    #volume-slider {
+        width: 180px;
+    }
+
+    /* タイマーボタン類をタップしやすいサイズに拡大 */
+    button, select {
+        padding: 8px 14px;
+        font-size: 0.95rem;
+    }
+
+    #timer-display {
+        font-size: 2.5rem;
+    }
+
+    #timer-box div {
+        width: 100%;
+        max-width: 340px;
+    }
+
+    #timer-box button {
+        flex: 1;
+        padding: 10px 12px;
+    }
 }

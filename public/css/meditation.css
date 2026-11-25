@@ -135,6 +135,7 @@ hr {
 }
 
 select {
+    max-width: 100%;
     padding: 5px 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
@@ -262,6 +263,7 @@ button.active {
 /* ナビゲーション */
 .nav-links {
     font-size: 0.9rem;
+    text-align: center;
 }
 
 .nav-links a {
@@ -271,4 +273,73 @@ button.active {
 
 .nav-links a:hover {
     color: #666666;
+}
+
+/* -------------------------------------------------------------
+   レスポンシブ対応（スマホ・タブレット向け：幅600px以下）
+------------------------------------------------------------- */
+@media (max-width: 600px) {
+    body {
+        padding: 16px 14px;
+    }
+
+    header h1 {
+        font-size: 1.4rem;
+    }
+
+    .subtitle {
+        font-size: 0.84rem;
+    }
+
+    hr {
+        margin: 14px 0;
+    }
+
+    /* ガイドモード選択を横幅いっぱいに広げて見やすく */
+    .control-group {
+        justify-content: center;
+    }
+
+    #breathing-mode {
+        width: 100%;
+        padding: 8px 10px;
+    }
+
+    .time-btn {
+        padding: 7px 14px;
+    }
+
+    /* ベル音トグルが窮屈にならないよう改行時に中央揃え */
+    .sound-toggle {
+        margin-left: 4px;
+        padding: 4px 0;
+    }
+
+    /* 呼吸サークルのサイズをスマホ画面に合わせて調整 */
+    .circle-container {
+        width: 185px;
+        height: 185px;
+    }
+
+    .circle {
+        width: 96px;
+        height: 96px;
+    }
+
+    .support-message {
+        font-size: 0.86rem;
+        border-radius: 12px;
+        padding: 8px 12px;
+    }
+
+    /* 開始・リセットボタンをタップしやすく */
+    .action-buttons {
+        width: 100%;
+        max-width: 340px;
+    }
+
+    .action-buttons button {
+        flex: 1;
+        padding: 10px 14px;
+    }
 }
